@@ -1,0 +1,13 @@
+{
+  "name": "@submanager/gen-server",
+  "version": "1.0.1770867406566",
+	"dependencies": {
+		"@submanager/gen-shared": "file:../shared"
+	},
+  "main": "./dist/cjs/index.js",
+	"type": "commonjs",
+  "typings": "./dist/cjs/index.d.ts",
+	"scripts": { 
+		"build": "tsc"
+	}
+}
