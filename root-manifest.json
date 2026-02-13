@@ -1,6 +1,10 @@
 {
-  "id": "xxxxxxxxxxxxxxxxxxxxxx",
+  "id": "ACzrsfGOiQm7FkURdsF4Dg",
   "version": "1.0.0",
+  "permissions": [
+    "community.members:write",
+    "community.roles:read"
+  ],
   "package": {
     "client": {
       "deploy": "client/dist"

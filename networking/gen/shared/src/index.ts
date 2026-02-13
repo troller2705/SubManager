@@ -3,7 +3,7 @@
 // tslint: disable
 
 
-export * from "./example";
+export * from "./sub";
 
 export * from "./rootsdk/types";
 

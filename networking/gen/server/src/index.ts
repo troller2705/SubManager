@@ -3,5 +3,5 @@
 // tslint: disable
 
 
-export * from "./example.server";
+export * from "./sub.server";
 
