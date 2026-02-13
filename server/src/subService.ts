@@ -97,7 +97,7 @@ export class SubService extends SubscriptionServiceBase {
         grant_type: "authorization_code",
         client_id: config.patreon_client_id,
         client_secret: config.patreon_client_secret,
-        redirect_uri: "https://your-app-domain.com/patreon/callback", // TODO: Replace with your app's callback URL
+        redirect_uri: "http://localhost:5173/patreon/callback", // TODO: Replace with your app's callback URL
       }),
     });
   
