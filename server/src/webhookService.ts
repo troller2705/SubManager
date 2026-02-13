@@ -3,7 +3,7 @@ import { verifyPatreonSignature } from "./webhookUtils";
 import { subService } from "./subService";
 
 // Conceptual Webhook Handler
-async function handlePatreonWebhook(req: any, res: any) {
+export async function handlePatreonWebhook(req: any, res: any) {
   const signature = req.headers['x-patreon-signature'];
   const rawBody = req.rawBody; // Use the raw body for signature verification
   const communityId = req.params.communityId;

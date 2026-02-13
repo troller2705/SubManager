@@ -5,6 +5,15 @@ import { Tier } from "@submanager/gen-shared";
 const App: React.FC = () => {
   const [tiers, setTiers] = useState<Tier[]>([]);
 
+  const handleSave = async (tierId: string, roleId: string, provider: string) => {
+    await subscriptionServiceClient.saveMapping({
+      tierId,  // Maps to tier_id in proto
+      roleId,  // Maps to role_id in proto
+      provider
+    });
+    alert("Mapping saved successfully!");
+  };
+
   useEffect(() => {
     // Zero arguments for rootsdk.Void
     subscriptionServiceClient.getTiers().then(res => setTiers(res.tiers));

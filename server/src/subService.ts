@@ -14,6 +14,27 @@ export class SubService extends SubscriptionServiceBase {
     };
   }
 
+  async getPatreonCommunityTiers(accessToken: string) {
+    // Use the campaigns endpoint to fetch all tiers available in the community
+    const response = await fetch(
+      "https://www.patreon.com/api/oauth2/v2/campaigns?include=tiers&fields[tier]=title,description",
+      {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }
+    );
+    
+    const data = await response.json();
+  
+    // Extract tiers from the 'included' array
+    return data.included
+      ?.filter((obj: any) => obj.type === "tier")
+      .map((tier: any) => ({
+        id: tier.id,
+        name: tier.attributes.title,
+        provider: "patreon"
+      })) || [];
+  }
+
   async saveMapping(request: MappingRequest, client: Client): Promise<void> {
     const db = (rootServer as any).database; // Use the knex instance initialized in main.ts
     await db("role_mappings").insert({
@@ -63,12 +84,33 @@ export class SubService extends SubscriptionServiceBase {
     }
   }
 
-  async handlePatreonCallback(code: string, rootUserId: string) {
-    // 1. Exchange 'code' for an access token via Patreon API
-    // 2. Call /api/oauth2/api/current_user to get their Patreon ID
-    const patreonId = "fetched_id_from_api";
-
+  async handlePatreonCallback(code: string, rootUserId: string, communityId: string) {
     const db = (rootServer as any).database;
+    const config = await db("community_settings").where({ community_id: communityId }).first();
+  
+    // 1. Exchange 'code' for an access token
+    const response = await fetch("https://www.patreon.com/api/oauth2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code,
+        grant_type: "authorization_code",
+        client_id: config.patreon_client_id,
+        client_secret: config.patreon_client_secret,
+        redirect_uri: "https://your-app-domain.com/patreon/callback", // TODO: Replace with your app's callback URL
+      }),
+    });
+  
+    const tokenData = await response.json();
+  
+    // 2. Fetch the user's Patreon ID using the identity endpoint
+    const userResponse = await fetch("https://www.patreon.com/api/oauth2/v2/identity", {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    const userData = await userResponse.json();
+    const patreonId = userData.data.id;
+  
+    // 3. Link the IDs in the user_links table
     await db("user_links")
       .insert({ root_user_id: rootUserId, patreon_id: patreonId })
       .onConflict("root_user_id")

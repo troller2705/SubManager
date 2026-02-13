@@ -1,5 +1,6 @@
 import { rootServer, RootAppStartState } from "@rootsdk/server-app";
 import { subService } from "./subService";
+import { handlePatreonWebhook } from "./webhookService";
 import knex from "knex";
 import path from "path";
 
@@ -36,9 +37,23 @@ async function onStarting(state: RootAppStartState) {
     });
   }
 
+  if (!(await db.schema.hasTable("community_settings"))) {
+    await db.schema.createTable("community_settings", (table) => {
+      table.string("community_id").primary();
+      table.string("patreon_webhook_secret").nullable();
+      table.string("substar_webhook_secret").nullable();
+      table.string("patreon_client_id").nullable();
+      table.string("patreon_client_secret").nullable();
+    });
+  }
+
   // 3. REGISTER THE SERVICE
   // This line is critical to fix the "Endpoint handler is missing" error
   rootServer.lifecycle.addService(subService);
+
+  // Logic to register the public webhook URL
+  // Replace with the specific Root SDK method for public HTTP routes
+  (rootServer as any).registerHttpHandler("/webhooks/patreon/:communityId", handlePatreonWebhook);
 }
 
 (async () => {
