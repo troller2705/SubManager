@@ -11,6 +11,19 @@ import type { PartialMessage } from "@protobuf-ts/runtime";
 import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
 /**
+ * @generated from protobuf message RootRole
+ */
+export interface RootRole {
+    /**
+     * @generated from protobuf field: string id = 1
+     */
+    id: string;
+    /**
+     * @generated from protobuf field: string name = 2
+     */
+    name: string;
+}
+/**
  * @generated from protobuf message Tier
  */
 export interface Tier {
@@ -25,7 +38,7 @@ export interface Tier {
     /**
      * @generated from protobuf field: string provider = 3
      */
-    provider: string; // "patreon" or "substar"
+    provider: string;
 }
 /**
  * @generated from protobuf message TierList
@@ -35,6 +48,10 @@ export interface TierList {
      * @generated from protobuf field: repeated Tier tiers = 1
      */
     tiers: Tier[];
+    /**
+     * @generated from protobuf field: repeated RootRole roles = 2
+     */
+    roles: RootRole[]; // New field for Root roles
 }
 /**
  * @generated from protobuf message MappingRequest
@@ -53,6 +70,61 @@ export interface MappingRequest {
      */
     provider: string;
 }
+// @generated message type with reflection information, may provide speed optimized methods
+class RootRole$Type extends MessageType<RootRole> {
+    constructor() {
+        super("RootRole", [
+            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "name", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<RootRole>): RootRole {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.id = "";
+        message.name = "";
+        if (value !== undefined)
+            reflectionMergePartial<RootRole>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: RootRole): RootRole {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string id */ 1:
+                    message.id = reader.string();
+                    break;
+                case /* string name */ 2:
+                    message.name = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: RootRole, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string id = 1; */
+        if (message.id !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.id);
+        /* string name = 2; */
+        if (message.name !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.name);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message RootRole
+ */
+export const RootRole = new RootRole$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class Tier$Type extends MessageType<Tier> {
     constructor() {
@@ -120,12 +192,14 @@ export const Tier = new Tier$Type();
 class TierList$Type extends MessageType<TierList> {
     constructor() {
         super("TierList", [
-            { no: 1, name: "tiers", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Tier }
+            { no: 1, name: "tiers", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Tier },
+            { no: 2, name: "roles", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => RootRole }
         ]);
     }
     create(value?: PartialMessage<TierList>): TierList {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.tiers = [];
+        message.roles = [];
         if (value !== undefined)
             reflectionMergePartial<TierList>(this, message, value);
         return message;
@@ -137,6 +211,9 @@ class TierList$Type extends MessageType<TierList> {
             switch (fieldNo) {
                 case /* repeated Tier tiers */ 1:
                     message.tiers.push(Tier.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                case /* repeated RootRole roles */ 2:
+                    message.roles.push(RootRole.internalBinaryRead(reader, reader.uint32(), options));
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -153,6 +230,9 @@ class TierList$Type extends MessageType<TierList> {
         /* repeated Tier tiers = 1; */
         for (let i = 0; i < message.tiers.length; i++)
             Tier.internalBinaryWrite(message.tiers[i], writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* repeated RootRole roles = 2; */
+        for (let i = 0; i < message.roles.length; i++)
+            RootRole.internalBinaryWrite(message.roles[i], writer.tag(2, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

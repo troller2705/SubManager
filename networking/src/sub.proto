@@ -2,21 +2,26 @@ syntax = "proto3";
 import "rootsdk/types.proto";
 
 service SubscriptionService {
-  // Fetches available tiers from Patreon and SubscribeStar
+  // Returns both external provider tiers and Root community roles
   rpc GetTiers(rootsdk.Void) returns (TierList);
-  // Saves the mapping of a platform tier to a Root Community role
   rpc SaveMapping(MappingRequest) returns (rootsdk.Void);
   rpc TriggerManualSync(rootsdk.Void) returns (rootsdk.Void);
+}
+
+message RootRole {
+  string id = 1;
+  string name = 2;
 }
 
 message Tier {
   string id = 1;
   string name = 2;
-  string provider = 3; // "patreon" or "substar"
+  string provider = 3;
 }
 
 message TierList {
   repeated Tier tiers = 1;
+  repeated RootRole roles = 2; // New field for Root roles
 }
 
 message MappingRequest {
