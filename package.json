@@ -3,18 +3,21 @@
   "description": "submanager",
   "version": "1.0.0",
   "private": true,
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@rootsdk/client-app": "*",
     "@rootsdk/server-app": "*",
     "@submanager/gen-client": "file:./networking/gen/client",
     "@submanager/gen-server": "file:./networking/gen/server",
-    "@submanager/gen-shared": "file:./networking/gen/shared"
+    "@submanager/gen-shared": "file:./networking/gen/shared",
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "@rootsdk/dev-tools": "*",
-    "typescript": "^5.8.2",
-    "@types/node": "^22.10.2"
+    "@types/node": "^22.10.2",
+    "typescript": "^5.8.2"
   },
   "scripts": {
     "build": "npm run build --workspaces",

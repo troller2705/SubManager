@@ -5,5 +5,8 @@
   "scripts": {
     "build": "tsc",
     "server": "rootsdk start devhost --project-folder=../"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6"
   }
 }

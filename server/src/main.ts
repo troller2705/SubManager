@@ -1,8 +1,26 @@
 import { rootServer, RootAppStartState } from "@rootsdk/server-app";
 import { subService } from "./subService";
 import { handlePatreonWebhook } from "./webhookService";
+import express from "express";
 import knex from "knex";
 import path from "path";
+
+const app = express();
+app.use(express.json());
+
+// Handle the Patreon webhook using standard Express routing
+app.post("/webhooks/patreon/:communityId", async (req, res) => {
+  const { communityId } = req.params;
+  try {
+    // Pass the webhook data to your existing handler logic
+    console.log(`Received Patreon webhook for community: ${communityId}`);
+    // await handlePatreonWebhook(req.body, communityId); 
+    res.status(200).send("OK");
+  } catch (error) {
+    console.error("Webhook error:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 async function onStarting(state: RootAppStartState) {
   // 1. Initialize the database FIRST
@@ -52,8 +70,10 @@ async function onStarting(state: RootAppStartState) {
   rootServer.lifecycle.addService(subService);
 
   // Logic to register the public webhook URL
-  // Replace with the specific Root SDK method for public HTTP routes
-  (rootServer as any).registerHttpHandler("/webhooks/patreon/:communityId", handlePatreonWebhook);
+  // Start the Express server on a separate port (e.g., 3001)
+  app.listen(3001, () => {
+    console.log("Express webhook server running on port 3001");
+  });
 }
 
 (async () => {

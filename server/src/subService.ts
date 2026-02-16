@@ -1,5 +1,5 @@
 import { Client, CommunityMemberRoleAddRequest, CommunityMemberRoleRemoveRequest, rootServer } from "@rootsdk/server-app";
-import { TierList, MappingRequest, RootRole } from "@submanager/gen-shared";
+import { TierList, MappingRequest } from "@submanager/gen-shared";
 import { SubscriptionServiceBase } from "@submanager/gen-server";
 
 export class SubService extends SubscriptionServiceBase {
@@ -7,25 +7,26 @@ export class SubService extends SubscriptionServiceBase {
     const db = (rootServer as any).database;
     const config = await db("community_settings").where({ community_id: client.communityId }).first();
   
-    // 1. Fetch Root Community Roles using the pattern from the RoleList sample
+    // 1. Fetch Root Community Roles using server-side SDK
     const communityRoles = await rootServer.community.communityRoles.list();
-    const formattedRoles: RootRole[] = communityRoles.map(r => ({
+    const formattedRoles = communityRoles.map(r => ({
       id: r.id,
       name: r.name
     }));
   
-    // 2. Fetch External Provider Tiers (Patreon)
-    let patreonTiers: any[] = [];
-    if (config?.patreon_access_token) {
-      patreonTiers = await this.getPatreonCommunityTiers(config.patreon_access_token);
-    }
+    // 2. Fetch or Generate Tiers (using dummy data for local testing)
+    const patreonTiers = config?.patreon_access_token 
+      ? await this.getPatreonCommunityTiers(config.patreon_access_token)
+      : [
+          { id: "local_1", name: "Premium Tier", provider: "patreon" },
+          { id: "local_2", name: "Basic Tier", provider: "patreon" }
+        ];
   
     return {
       tiers: patreonTiers,
-      roles: formattedRoles // Roles are now passed to the client here
+      roles: formattedRoles // Pass both to the client
     };
   }
-
   async getPatreonCommunityTiers(accessToken: string) {
     // Use the campaigns endpoint to fetch all tiers available in the community
     const response = await fetch(
