@@ -26,9 +26,7 @@ async function onStarting(state: RootAppStartState) {
   // 1. Initialize the database FIRST
   const db = knex({
     client: "sqlite3",
-    connection: { 
-        filename: path.join(process.cwd(), "rootsdk.sqlite3") 
-    },
+    connection: { filename: rootServer.dataStore.config.sqlite3!.filename },
     useNullAsDefault: true,
   });
 
@@ -43,6 +41,8 @@ async function onStarting(state: RootAppStartState) {
       table.string("tier_id");
       table.string("role_id");
       table.string("provider");
+      // This unique constraint is critical for the .onConflict() logic above
+      table.unique(["community_id", "tier_id", "provider"]);
     });
     console.log("Database: role_mappings table created.");
   }

@@ -49,13 +49,28 @@ export class SubService extends SubscriptionServiceBase {
   }
 
   async saveMapping(request: MappingRequest, client: Client): Promise<void> {
-    const db = (rootServer as any).database; // Use the knex instance initialized in main.ts
-    await db("role_mappings").insert({
-      community_id: client.communityId,
-      tier_id: request.tierId,
-      role_id: request.roleId,
-      provider: request.provider
-    });
+    const db = (rootServer as any).database;
+  
+    try {
+      await db("role_mappings")
+        .insert({
+          community_id: client.communityId,
+          tier_id: request.tierId,
+          role_id: request.roleId,
+          provider: request.provider
+        })
+        // Use onConflict to allow updating existing mappings
+        .onConflict(['community_id', 'tier_id', 'provider'])
+        .merge();
+        
+      console.log(`Saved mapping: Tier ${request.tierId} -> Role ${request.roleId}`);
+      // The function MUST return (resolve) to notify the client the request succeeded
+      return; 
+    } catch (error) {
+      console.error("Failed to save mapping:", error);
+      // Re-throwing ensures the client receives an error instead of hanging
+      throw error; 
+    }
   }
 
   async syncMemberRoles(communityId: string, externalId: string, activeTiers: string[]) {
