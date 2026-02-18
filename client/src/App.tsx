@@ -58,8 +58,15 @@ const App: React.FC = () => {
           <div className="header-text">
             <h1 className="app-title">Subscription Manager</h1>
           </div>
-          <button className="button-patreon"> Sign into Patreon</button>
-          <button className="button-substar"> Sign into SubscribeStar</button>
+          <button className="button-patreon">
+            <ProviderIcon provider="patreon" size={22}/>
+            <span>Sign into Patreon</span>
+          </button>
+
+          <button className="button-substar">
+            <ProviderIcon provider="substar" size={32}/>
+            <span>Sign into SubscribeStar</span>
+          </button>
           <button className="button-primary" onClick={handleManualSync}> Sync Users' Tiers</button>
         </div>
       </header>
@@ -67,7 +74,7 @@ const App: React.FC = () => {
       {tiers.map(tier => (
         <div className="component-section" key={`${tier.provider}-${tier.id}`} style={{ margin: "10px 0", justifyContent: "space-between", display: "flex", alignItems: "center"}}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <ProviderIcon provider={tier.provider} size={tier.provider === 'patreon' ? 22 : 1000}/>
+            <ProviderIcon provider={tier.provider} size={tier.provider === 'patreon' ? 22 : 32}/>
             <strong>{tier.name}</strong>
           </div>
           <Dropdown
@@ -150,7 +157,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
           {selectedOption?.label || placeholder}
         </span>
         <span className="dropdown-trigger-chevron">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="#fff" xmlns="http://www.w3.org/2000/svg">
             <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </span>

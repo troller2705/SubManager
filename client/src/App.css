@@ -343,18 +343,27 @@
     background-color: var(--rootsdk-text-primary);
     color: var(--rootsdk-background-tertiary);
   
-    /* Shape: pill-shaped (fully rounded) */
+    /* Layout: Center content vertically and horizontally */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between icon and text */
+
+    /* Prevent stretching */
+    width: fit-content; 
+    white-space: nowrap;
+
+    /* Sizing adjustments */
+    min-height: 48px; /* Optional: keeps buttons same height despite icon size diff */
+    padding: 8px 24px;
+    
+    /* ... rest of your existing styles ... */
     border: none;
     border-radius: 9999px;
-  
-    /* Sizing */
-    padding: 8px 24px;
     font-size: 14px;
     font-weight: 500;
-  
-    /* Interaction */
     cursor: pointer;
-    transition: opacity 200ms;
+    transition: opacity 200ms, transform 100ms;
   }
 
   .button-primary:hover {
@@ -371,68 +380,51 @@
     cursor: not-allowed;
   }
 
-  .button-patreon {
-    /* Colors: filled style */
-    background-color: #f76754;
-    color: var(--rootsdk-background-tertiary);
-  
-    /* Shape: pill-shaped (fully rounded) */
+  .button-patreon, .button-substar {
+    /* Layout: Center content vertically and horizontally */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between icon and text */
+
+    /* Prevent stretching */
+    width: fit-content; 
+    white-space: nowrap;
+
+    /* Sizing adjustments */
+    min-height: 48px; /* Optional: keeps buttons same height despite icon size diff */
+    padding: 8px 24px;
+    
+    /* ... rest of your existing styles ... */
     border: none;
     border-radius: 9999px;
-  
-    /* Sizing */
-    padding: 8px 24px;
     font-size: 14px;
     font-weight: 500;
-  
-    /* Interaction */
     cursor: pointer;
-    transition: opacity 200ms;
-  }
+    transition: opacity 200ms, transform 100ms;
+  } 
 
-  .button-patreon:hover {
-    opacity: 0.7;
-  }
-  
-  .button-patreon:active {
-    opacity: 0.5;
-    transform: scale(0.98);
-  }
-  
-  .button-patreon:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+/* Specific color overrides */
+  .button-patreon {
+    background-color: #f76754;
+    color: var(--rootsdk-background-tertiary);
   }
 
   .button-substar {
-    /* Colors: filled style */
     background-color: #009687;
     color: var(--rootsdk-text-primary);
-  
-    /* Shape: pill-shaped (fully rounded) */
-    border: none;
-    border-radius: 9999px;
-  
-    /* Sizing */
-    padding: 8px 24px;
-    font-size: 14px;
-    font-weight: 500;
-  
-    /* Interaction */
-    cursor: pointer;
-    transition: opacity 200ms;
   }
 
-  .button-substar:hover {
+  .button-patreon:hover, .button-substar:hover {
     opacity: 0.7;
   }
   
-  .button-substar:active {
+  .button-patreon:active, .button-substar:active {
     opacity: 0.5;
     transform: scale(0.98);
   }
   
-  .button-substar:disabled {
+  .button-patreon:disabled, .button-substar:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
