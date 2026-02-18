@@ -41,6 +41,19 @@ export interface Tier {
     provider: string;
 }
 /**
+ * @generated from protobuf message Mapping
+ */
+export interface Mapping {
+    /**
+     * @generated from protobuf field: string tier_id = 1
+     */
+    tierId: string;
+    /**
+     * @generated from protobuf field: string role_id = 2
+     */
+    roleId: string;
+}
+/**
  * @generated from protobuf message TierList
  */
 export interface TierList {
@@ -51,7 +64,11 @@ export interface TierList {
     /**
      * @generated from protobuf field: repeated RootRole roles = 2
      */
-    roles: RootRole[]; // New field for Root roles
+    roles: RootRole[];
+    /**
+     * @generated from protobuf field: repeated Mapping existing_mappings = 3
+     */
+    existingMappings: Mapping[];
 }
 /**
  * @generated from protobuf message MappingRequest
@@ -189,17 +206,74 @@ class Tier$Type extends MessageType<Tier> {
  */
 export const Tier = new Tier$Type();
 // @generated message type with reflection information, may provide speed optimized methods
+class Mapping$Type extends MessageType<Mapping> {
+    constructor() {
+        super("Mapping", [
+            { no: 1, name: "tier_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "role_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<Mapping>): Mapping {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.tierId = "";
+        message.roleId = "";
+        if (value !== undefined)
+            reflectionMergePartial<Mapping>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Mapping): Mapping {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string tier_id */ 1:
+                    message.tierId = reader.string();
+                    break;
+                case /* string role_id */ 2:
+                    message.roleId = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: Mapping, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string tier_id = 1; */
+        if (message.tierId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.tierId);
+        /* string role_id = 2; */
+        if (message.roleId !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.roleId);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message Mapping
+ */
+export const Mapping = new Mapping$Type();
+// @generated message type with reflection information, may provide speed optimized methods
 class TierList$Type extends MessageType<TierList> {
     constructor() {
         super("TierList", [
             { no: 1, name: "tiers", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Tier },
-            { no: 2, name: "roles", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => RootRole }
+            { no: 2, name: "roles", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => RootRole },
+            { no: 3, name: "existing_mappings", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Mapping }
         ]);
     }
     create(value?: PartialMessage<TierList>): TierList {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.tiers = [];
         message.roles = [];
+        message.existingMappings = [];
         if (value !== undefined)
             reflectionMergePartial<TierList>(this, message, value);
         return message;
@@ -214,6 +288,9 @@ class TierList$Type extends MessageType<TierList> {
                     break;
                 case /* repeated RootRole roles */ 2:
                     message.roles.push(RootRole.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                case /* repeated Mapping existing_mappings */ 3:
+                    message.existingMappings.push(Mapping.internalBinaryRead(reader, reader.uint32(), options));
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -233,6 +310,9 @@ class TierList$Type extends MessageType<TierList> {
         /* repeated RootRole roles = 2; */
         for (let i = 0; i < message.roles.length; i++)
             RootRole.internalBinaryWrite(message.roles[i], writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        /* repeated Mapping existing_mappings = 3; */
+        for (let i = 0; i < message.existingMappings.length; i++)
+            Mapping.internalBinaryWrite(message.existingMappings[i], writer.tag(3, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

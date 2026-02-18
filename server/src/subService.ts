@@ -9,13 +9,18 @@ export class SubService extends SubscriptionServiceBase {
   
     // 1. Fetch Root Community Roles using server-side SDK
     const communityRoles = await rootServer.community.communityRoles.list();
-    const formattedRoles = communityRoles.map(r => ({
+    const roles = communityRoles.map(r => ({
       id: r.id,
       name: r.name
     }));
+
+    // 2. Fetch Existing Mappings for this community
+    const savedMappings = await db("role_mappings")
+      .where({ community_id: client.communityId })
+      .select("tier_id as tierId", "role_id as roleId");
   
-    // 2. Fetch or Generate Tiers (using dummy data for local testing)
-    const patreonTiers = config?.patreon_access_token 
+    // 3. Fetch or Generate Tiers (using dummy data for local testing)
+    const tiers = config?.patreon_access_token 
       ? await this.getPatreonCommunityTiers(config.patreon_access_token)
       : [
           { id: "local_1", name: "Premium Tier", provider: "patreon" },
@@ -23,8 +28,9 @@ export class SubService extends SubscriptionServiceBase {
         ];
   
     return {
-      tiers: patreonTiers,
-      roles: formattedRoles // Pass both to the client
+      tiers,
+      roles,
+      existingMappings: savedMappings
     };
   }
   async getPatreonCommunityTiers(accessToken: string) {
@@ -52,6 +58,17 @@ export class SubService extends SubscriptionServiceBase {
     const db = (rootServer as any).database;
   
     try {
+      if (!request.roleId) {
+        await db("role_mappings")
+          .where({ 
+            community_id: client.communityId, 
+            tier_id: request.tierId, 
+            provider: request.provider 
+          })
+          .delete();
+        return;
+      }
+
       await db("role_mappings")
         .insert({
           community_id: client.communityId,

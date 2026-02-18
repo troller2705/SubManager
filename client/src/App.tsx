@@ -13,8 +13,16 @@ const App: React.FC = () => {
 
   useEffect(() => {
     subscriptionServiceClient.getTiers().then(res => {
+      console.log("Full Server Response:", res); // DEBUG LOG
       setTiers(res.tiers || []);
       setRoles(res.roles || []);
+
+      // Auto-populate the dropdowns with existing mappings from the database
+      const initialMappings: Record<string, string> = {};
+      res.existingMappings?.forEach(m => {
+        initialMappings[m.tierId] = m.roleId;
+      });
+      setMappings(initialMappings);
       
       // OPTIONAL: If your API eventually returns existing mappings, 
       // you would initialize the state here.

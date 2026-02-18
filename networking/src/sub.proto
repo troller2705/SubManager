@@ -19,9 +19,15 @@ message Tier {
   string provider = 3;
 }
 
+message Mapping {
+  string tier_id = 1;
+  string role_id = 2;
+}
+
 message TierList {
   repeated Tier tiers = 1;
-  repeated RootRole roles = 2; // New field for Root roles
+  repeated RootRole roles = 2;
+  repeated Mapping existing_mappings = 3;
 }
 
 message MappingRequest {
