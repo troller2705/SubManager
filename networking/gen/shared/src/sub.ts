@@ -52,6 +52,10 @@ export interface Mapping {
      * @generated from protobuf field: string role_id = 2
      */
     roleId: string;
+    /**
+     * @generated from protobuf field: string provider = 3
+     */
+    provider: string;
 }
 /**
  * @generated from protobuf message TierList
@@ -210,13 +214,15 @@ class Mapping$Type extends MessageType<Mapping> {
     constructor() {
         super("Mapping", [
             { no: 1, name: "tier_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "role_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 2, name: "role_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "provider", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<Mapping>): Mapping {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.tierId = "";
         message.roleId = "";
+        message.provider = "";
         if (value !== undefined)
             reflectionMergePartial<Mapping>(this, message, value);
         return message;
@@ -231,6 +237,9 @@ class Mapping$Type extends MessageType<Mapping> {
                     break;
                 case /* string role_id */ 2:
                     message.roleId = reader.string();
+                    break;
+                case /* string provider */ 3:
+                    message.provider = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -250,6 +259,9 @@ class Mapping$Type extends MessageType<Mapping> {
         /* string role_id = 2; */
         if (message.roleId !== "")
             writer.tag(2, WireType.LengthDelimited).string(message.roleId);
+        /* string provider = 3; */
+        if (message.provider !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.provider);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

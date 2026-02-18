@@ -22,6 +22,7 @@ message Tier {
 message Mapping {
   string tier_id = 1;
   string role_id = 2;
+  string provider = 3;
 }
 
 message TierList {

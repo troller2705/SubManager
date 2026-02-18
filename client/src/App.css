@@ -371,6 +371,72 @@
     cursor: not-allowed;
   }
 
+  .button-patreon {
+    /* Colors: filled style */
+    background-color: #f76754;
+    color: var(--rootsdk-background-tertiary);
+  
+    /* Shape: pill-shaped (fully rounded) */
+    border: none;
+    border-radius: 9999px;
+  
+    /* Sizing */
+    padding: 8px 24px;
+    font-size: 14px;
+    font-weight: 500;
+  
+    /* Interaction */
+    cursor: pointer;
+    transition: opacity 200ms;
+  }
+
+  .button-patreon:hover {
+    opacity: 0.7;
+  }
+  
+  .button-patreon:active {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  
+  .button-patreon:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .button-substar {
+    /* Colors: filled style */
+    background-color: #009687;
+    color: var(--rootsdk-text-primary);
+  
+    /* Shape: pill-shaped (fully rounded) */
+    border: none;
+    border-radius: 9999px;
+  
+    /* Sizing */
+    padding: 8px 24px;
+    font-size: 14px;
+    font-weight: 500;
+  
+    /* Interaction */
+    cursor: pointer;
+    transition: opacity 200ms;
+  }
+
+  .button-substar:hover {
+    opacity: 0.7;
+  }
+  
+  .button-substar:active {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  
+  .button-substar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   /* ----------------------------------------------------------
    SECTION CONTAINER
    Each component demo is wrapped in a section card

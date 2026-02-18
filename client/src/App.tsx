@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { subscriptionServiceClient } from "@submanager/gen-client";
 import { Tier, RootRole } from "@submanager/gen-shared";
 import './App.css';
+import { ProviderIcon } from "./BrandIcons";
 
 const App: React.FC = () => {
   const [tiers, setTiers] = useState<Tier[]>([]);
@@ -19,7 +20,7 @@ const App: React.FC = () => {
       // Auto-populate the dropdowns with existing mappings from the database
       const initialMappings: Record<string, string> = {};
       res.existingMappings?.forEach(m => {
-        initialMappings[m.tierId] = m.roleId;
+        initialMappings[`${m.provider}-${m.tierId}`] = m.roleId;
       });
       setMappings(initialMappings);
       
@@ -34,10 +35,12 @@ const App: React.FC = () => {
   };
 
   const handleDropdownChange = (tier: Tier, selectedRoleId: string) => {
+    const combinedKey = `${tier.provider}-${tier.id}`;
+
     // 1. Update the local UI state for just this specific tier
     setMappings(prev => ({
       ...prev,
-      [tier.id]: selectedRoleId
+      [combinedKey]: selectedRoleId
     }));
 
     // 2. Call the backend service
@@ -55,20 +58,25 @@ const App: React.FC = () => {
           <div className="header-text">
             <h1 className="app-title">Subscription Manager</h1>
           </div>
-          <button className="button-primary" onClick={handleManualSync}>Sync Community Roles</button>
+          <button className="button-patreon"> Sign into Patreon</button>
+          <button className="button-substar"> Sign into SubscribeStar</button>
+          <button className="button-primary" onClick={handleManualSync}> Sync Users' Tiers</button>
         </div>
       </header>
 
       {tiers.map(tier => (
-        <div className="component-section" key={tier.id} style={{ margin: "10px 0", justifyContent: "space-between", display: "flex", alignItems: "center"}}>
-          <h3>{tier.provider.charAt(0).toUpperCase() + tier.provider.slice(1)} | {tier.name}</h3>
+        <div className="component-section" key={`${tier.provider}-${tier.id}`} style={{ margin: "10px 0", justifyContent: "space-between", display: "flex", alignItems: "center"}}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <ProviderIcon provider={tier.provider} size={tier.provider === 'patreon' ? 22 : 1000}/>
+            <strong>{tier.name}</strong>
+          </div>
           <Dropdown
             options={[
               { value: '', label: 'Map to Root Role...' },
               ...roles.map(r => ({ value: r.id, label: r.name }))
             ]}
             // Pass the specific value for this specific tier
-            value={mappings[tier.id] || ''}
+            value={mappings[`${tier.provider}-${tier.id}`] || ''}
             onChange={(selectedRoleId) => handleDropdownChange(tier, selectedRoleId)}
             placeholder="Select an option"
           />

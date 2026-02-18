@@ -7,23 +7,23 @@ export class SubService extends SubscriptionServiceBase {
     const db = (rootServer as any).database;
     const config = await db("community_settings").where({ community_id: client.communityId }).first();
   
-    // 1. Fetch Root Community Roles using server-side SDK
+    // 1. Fetch Roles
     const communityRoles = await rootServer.community.communityRoles.list();
-    const roles = communityRoles.map(r => ({
-      id: r.id,
-      name: r.name
-    }));
-
-    // 2. Fetch Existing Mappings for this community
+    const roles = communityRoles.map(r => ({ id: r.id, name: r.name }));
+  
+    // 2. Fetch ALL mappings for this community
     const savedMappings = await db("role_mappings")
       .where({ community_id: client.communityId })
-      .select("tier_id as tierId", "role_id as roleId");
+      .select("tier_id as tierId", "role_id as roleId", "provider");
   
-    // 3. Fetch or Generate Tiers (using dummy data for local testing)
+    // 3. Aggregate Tiers from multiple sources
+    // const patreonTiers = await this.fetchPatreonTiers(client);
+    // const subscribeStarTiers = await this.fetchSubscribeStarTiers(client);
+
     const tiers = config?.patreon_access_token 
       ? await this.getPatreonCommunityTiers(config.patreon_access_token)
       : [
-          { id: "local_1", name: "Premium Tier", provider: "patreon" },
+          { id: "local_1", name: "Premium Tier", provider: "subscribestar" },
           { id: "local_2", name: "Basic Tier", provider: "patreon" }
         ];
   
