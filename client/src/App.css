@@ -239,40 +239,6 @@
     }
   }
   
-  /* ----------------------------------------------------------
-     SYNTAX HIGHLIGHTING (global utility)
-     Used by CodeBlock and inline code snippets
-     ---------------------------------------------------------- */
-  .syntax-comment {
-    color: var(--rootsdk-text-tertiary);
-    font-style: italic;
-  }
-  
-  .syntax-string {
-    color: var(--rootsdk-brand-secondary);
-  }
-  
-  .syntax-keyword {
-    color: var(--rootsdk-brand-primary);
-  }
-  
-  .syntax-property {
-    color: var(--rootsdk-info);
-  }
-  
-  .syntax-value {
-    color: var(--rootsdk-brand-tertiary);
-  }
-  
-  .syntax-selector {
-    color: var(--rootsdk-brand-primary);
-    font-weight: 500;
-  }
-  
-  .syntax-punctuation {
-    color: var(--rootsdk-text-secondary);
-  }
-  
   /* ============================================================
    DROPDOWN COMPONENT
    Custom dropdown matching Root design patterns
@@ -403,4 +369,30 @@
   .button-primary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  /* ----------------------------------------------------------
+   SECTION CONTAINER
+   Each component demo is wrapped in a section card
+   ---------------------------------------------------------- */
+  .component-section {
+    background: var(--rootsdk-background-secondary);
+    border: 1px solid var(--rootsdk-border);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 5px 5px var(--rootsdk-surface-primary);
+  }
+
+  .component-section h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--rootsdk-text-primary);
+  }
+
+  .section-desc {
+    margin: 0 0 16px 0;
+    font-size: 13px;
+    color: var(--rootsdk-text-secondary);
+    line-height: 1.5;
   }

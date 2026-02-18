@@ -13,7 +13,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     subscriptionServiceClient.getTiers().then(res => {
-      console.log("Full Server Response:", res); // DEBUG LOG
       setTiers(res.tiers || []);
       setRoles(res.roles || []);
 
@@ -56,13 +55,13 @@ const App: React.FC = () => {
           <div className="header-text">
             <h1 className="app-title">Subscription Manager</h1>
           </div>
-          <button className="button-primary" onClick={handleManualSync}>Sync My Roles</button>
+          <button className="button-primary" onClick={handleManualSync}>Sync Community Roles</button>
         </div>
       </header>
 
       {tiers.map(tier => (
-        <div key={tier.id} style={{ border: "1px solid #333", padding: "10px", margin: "10px 0", borderRadius: "12px", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
-          <strong>{tier.provider.charAt(0).toUpperCase() + tier.provider.slice(1)} | {tier.name}</strong>
+        <div className="component-section" key={tier.id} style={{ margin: "10px 0", justifyContent: "space-between", display: "flex", alignItems: "center"}}>
+          <h3>{tier.provider.charAt(0).toUpperCase() + tier.provider.slice(1)} | {tier.name}</h3>
           <Dropdown
             options={[
               { value: '', label: 'Map to Root Role...' },
