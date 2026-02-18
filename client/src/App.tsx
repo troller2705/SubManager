@@ -48,12 +48,12 @@ const App: React.FC = () => {
           <div className="header-text">
             <h1 className="app-title">Subscription Manager</h1>
           </div>
-          <button onClick={handleManualSync}>Sync My Roles</button>
+          <button className="button-primary" onClick={handleManualSync}>Sync My Roles</button>
         </div>
       </header>
 
       {tiers.map(tier => (
-        <div key={tier.id} style={{ border: "1px solid #333", padding: "10px", margin: "10px 0", borderRadius: "50px", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
+        <div key={tier.id} style={{ border: "1px solid #333", padding: "10px", margin: "10px 0", borderRadius: "12px", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
           <strong>{tier.provider.charAt(0).toUpperCase() + tier.provider.slice(1)} | {tier.name}</strong>
           <Dropdown
             options={[

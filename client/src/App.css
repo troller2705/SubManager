@@ -365,3 +365,42 @@
   .dropdown-option.selected {
     background-color: var(--rootsdk-highlight-strong);
   }
+
+
+  /* ============================================================
+   BUTTON COMPONENT
+   Custom BUTTON matching Root design patterns
+   ============================================================ */
+
+   .button-primary {
+    /* Colors: filled style */
+    background-color: var(--rootsdk-text-primary);
+    color: var(--rootsdk-background-tertiary);
+  
+    /* Shape: pill-shaped (fully rounded) */
+    border: none;
+    border-radius: 9999px;
+  
+    /* Sizing */
+    padding: 8px 24px;
+    font-size: 14px;
+    font-weight: 500;
+  
+    /* Interaction */
+    cursor: pointer;
+    transition: opacity 200ms;
+  }
+
+  .button-primary:hover {
+    opacity: 0.7;
+  }
+  
+  .button-primary:active {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  
+  .button-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
