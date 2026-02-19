@@ -91,6 +91,27 @@ export interface MappingRequest {
      */
     provider: string;
 }
+/**
+ * @generated from protobuf message SyncResponse
+ */
+export interface SyncResponse {
+    /**
+     * @generated from protobuf field: bool success = 1
+     */
+    success: boolean;
+    /**
+     * @generated from protobuf field: string message = 2
+     */
+    message: string;
+    /**
+     * @generated from protobuf field: repeated string roles_added = 3
+     */
+    rolesAdded: string[];
+    /**
+     * @generated from protobuf field: repeated string roles_removed = 4
+     */
+    rolesRemoved: string[];
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class RootRole$Type extends MessageType<RootRole> {
     constructor() {
@@ -398,3 +419,74 @@ class MappingRequest$Type extends MessageType<MappingRequest> {
  * @generated MessageType for protobuf message MappingRequest
  */
 export const MappingRequest = new MappingRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class SyncResponse$Type extends MessageType<SyncResponse> {
+    constructor() {
+        super("SyncResponse", [
+            { no: 1, name: "success", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 2, name: "message", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "roles_added", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "roles_removed", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<SyncResponse>): SyncResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.success = false;
+        message.message = "";
+        message.rolesAdded = [];
+        message.rolesRemoved = [];
+        if (value !== undefined)
+            reflectionMergePartial<SyncResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: SyncResponse): SyncResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* bool success */ 1:
+                    message.success = reader.bool();
+                    break;
+                case /* string message */ 2:
+                    message.message = reader.string();
+                    break;
+                case /* repeated string roles_added */ 3:
+                    message.rolesAdded.push(reader.string());
+                    break;
+                case /* repeated string roles_removed */ 4:
+                    message.rolesRemoved.push(reader.string());
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: SyncResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* bool success = 1; */
+        if (message.success !== false)
+            writer.tag(1, WireType.Varint).bool(message.success);
+        /* string message = 2; */
+        if (message.message !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.message);
+        /* repeated string roles_added = 3; */
+        for (let i = 0; i < message.rolesAdded.length; i++)
+            writer.tag(3, WireType.LengthDelimited).string(message.rolesAdded[i]);
+        /* repeated string roles_removed = 4; */
+        for (let i = 0; i < message.rolesRemoved.length; i++)
+            writer.tag(4, WireType.LengthDelimited).string(message.rolesRemoved[i]);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message SyncResponse
+ */
+export const SyncResponse = new SyncResponse$Type();

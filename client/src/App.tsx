@@ -30,8 +30,16 @@ const App: React.FC = () => {
   }, []);
 
   const handleManualSync = async () => {
-    await subscriptionServiceClient.triggerManualSync();
-    alert("Role sync triggered!");
+    try {
+      const res = await subscriptionServiceClient.triggerManualSync();
+      if (res.success) {
+        alert(`Sync Successful!\nAdded: ${res.rolesAdded.length}\nRemoved: ${res.rolesRemoved.length}`);
+      } else {
+        alert("Sync failed: " + res.message);
+      }
+    } catch (err) {
+      alert("Request timed out or server is down.");
+    }
   };
 
   const handleDropdownChange = (tier: Tier, selectedRoleId: string) => {

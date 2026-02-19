@@ -4,6 +4,7 @@
 
 import {
   MappingRequest,
+	SyncResponse,
 	TierList,
 	Void
 } from "@submanager/gen-shared"
@@ -20,7 +21,7 @@ import {
 export abstract class SubscriptionServiceBase implements RootServerService {
 	abstract getTiers(client: Client): Promise<TierList>;
 	abstract saveMapping(request: MappingRequest,client: Client): Promise<void>;
-	abstract triggerManualSync(client: Client): Promise<void>;
+	abstract triggerManualSync(client: Client): Promise<SyncResponse>;
 
 	private __register(): UntypedServerMethodDefinition[] {
 		return [	{
@@ -45,7 +46,7 @@ export abstract class SubscriptionServiceBase implements RootServerService {
 			funct: (e: Void, c: Client) => { return this.triggerManualSync(c) },
 			path: '/.SubscriptionService/TriggerManualSync',
 			requestDeserialize: bytes => Void.fromBinary(bytes),
-			responseSerialize: value => Void.toBinary({})
+			responseSerialize: value => SyncResponse.toBinary(value)
 		},
 	]}
 

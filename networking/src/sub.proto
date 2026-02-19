@@ -5,7 +5,7 @@ service SubscriptionService {
   // Returns both external provider tiers and Root community roles
   rpc GetTiers(rootsdk.Void) returns (TierList);
   rpc SaveMapping(MappingRequest) returns (rootsdk.Void);
-  rpc TriggerManualSync(rootsdk.Void) returns (rootsdk.Void);
+  rpc TriggerManualSync(rootsdk.Void) returns (SyncResponse);
 }
 
 message RootRole {
@@ -35,4 +35,11 @@ message MappingRequest {
   string tier_id = 1;
   string role_id = 2;
   string provider = 3;
+}
+
+message SyncResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string roles_added = 3;
+  repeated string roles_removed = 4;
 }

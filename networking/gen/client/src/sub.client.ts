@@ -4,6 +4,7 @@
 
 import {
   MappingRequest,
+	SyncResponse,
 	TierList,
 	Void
 } from "@submanager/gen-shared"
@@ -29,9 +30,8 @@ export class SubscriptionServiceClient  {
 			(<any>rootClient).sendWithResponse('/.SubscriptionService/SaveMapping',request, this.saveMapping);
 			return Promise.resolve();
 	}
-	triggerManualSync(): Promise<void> {
-			(<any>rootClient).sendWithResponse('/.SubscriptionService/TriggerManualSync',{}, this.triggerManualSync);
-			return Promise.resolve();
+	triggerManualSync():Promise<SyncResponse> {
+		return (<any>rootClient).sendWithResponse('/.SubscriptionService/TriggerManualSync',{}, this.triggerManualSync);
 	}private __register(): UntypedClientMethodDefinition[] {
 		return [	{
       serviceName: 'SubscriptionServiceClient',
@@ -52,7 +52,7 @@ export class SubscriptionServiceClient  {
 			methodName: 'TriggerManualSync',
 			path: '/.SubscriptionService/TriggerManualSync',
 			requestSerialize: () => Void.toBinary({}),
-			responseDeserialize: () => {}
+			responseDeserialize: bytes => SyncResponse.fromBinary(bytes)
     },
 	]}
 }

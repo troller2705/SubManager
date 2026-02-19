@@ -1,6 +1,12 @@
 import { Client, CommunityMemberRoleAddRequest, CommunityMemberRoleRemoveRequest, rootServer } from "@rootsdk/server-app";
-import { TierList, MappingRequest } from "@submanager/gen-shared";
+import { TierList, MappingRequest, SyncResponse } from "@submanager/gen-shared";
 import { SubscriptionServiceBase } from "@submanager/gen-server";
+
+interface RoleMappingRow {
+  tier_id: string;
+  role_id: string;
+  provider: string;
+}
 
 export class SubService extends SubscriptionServiceBase {
   async getTiers(client: Client): Promise<TierList> {
@@ -119,14 +125,79 @@ export class SubService extends SubscriptionServiceBase {
     }
   }
 
-  async triggerManualSync(client: Client): Promise<void> {
+  async triggerManualSync(client: Client): Promise<SyncResponse> {
     const db = (rootServer as any).database;
-    const userLink = await db("user_links").where({ root_user_id: client.userId }).first();
-    
-    if (userLink?.patreon_id) {
-      // Fetch latest status from Patreon API and call your syncMemberRoles logic
-      await this.syncMemberRoles(client.communityId, userLink.patreon_id, ["tier_id_from_api"]);
+    const userId = client.userId;
+    const communityId = client.communityId;
+  
+    try {
+      // 1. Get user's active tiers (Fixed: Helper defined below)
+      const activeExternalTierIds = await this.getExternalUserTiers(userId); 
+  
+      // 2. Fetch mappings (Fixed: Added explicit type to rows)
+      const mappings: RoleMappingRow[] = await db("role_mappings")
+        .where({ community_id: communityId })
+        .select("tier_id", "role_id", "provider");
+  
+      // 3. Determine target roles
+      const targetRoleIds = mappings
+        .filter((m: RoleMappingRow) => activeExternalTierIds.includes(m.tier_id))
+        .map((m: RoleMappingRow) => m.role_id);
+  
+      // 4. Get user's CURRENT roles in the Root community
+      // We use the memberRoles service to list roles for this specific user
+      const currentRolesResponse = await rootServer.community.communityMemberRoles.list({ 
+        userId: userId as any 
+      });
+
+      // Map the branded IDs to strings so you can compare them easily with your DB IDs
+      const currentRoleIds = currentRolesResponse.communityRoleIds?.map(r => r as string);
+
+      // 5. Calculate diff
+      const rolesToAdd = targetRoleIds.filter((id: string) => !currentRoleIds?.includes(id));
+
+      // Only remove roles that are actually managed by our sub system 
+      // to avoid stripping Admin/Moderator roles.
+      const managedRoleIds = mappings.map((m: RoleMappingRow) => m.role_id);
+      const rolesToRemove = managedRoleIds.filter((id: string) => 
+        currentRoleIds?.includes(id) && !targetRoleIds.includes(id)
+      );
+
+      // 6. Apply changes (Fixed: Root SDK .add/.remove takes an object)
+      for (const roleId of rolesToAdd) {
+        let roleToAdd: CommunityMemberRoleAddRequest = {
+          // Cast the string to the Branded Type required by the SDK
+          communityRoleId: roleId as any, 
+          userIds: [userId as any]
+        };
+        await rootServer.community.communityMemberRoles.add(roleToAdd);
+      }
+      
+      for (const roleId of rolesToRemove) {
+        let roleToRemove: CommunityMemberRoleRemoveRequest = {
+          communityRoleId: roleId as any,
+          userIds: [userId as any]
+        };
+        await rootServer.community.communityMemberRoles.remove(roleToRemove);
+      }
+  
+      return { 
+        success: true, 
+        message: "Sync complete", 
+        rolesAdded: rolesToAdd, 
+        rolesRemoved: rolesToRemove 
+      };
+    } catch (error) {
+      console.error("Sync failed:", error);
+      return { success: false, message: "Sync failed", rolesAdded: [], rolesRemoved: [] };
     }
+  }
+  
+  // Fixed: Added the missing helper method
+  private async getExternalUserTiers(userId: string): Promise<string[]> {
+    // This is where we will call Patreon/SubscribeStar APIs later.
+    // For now, return a mock to test the logic flow.
+    return ["local_1"]; 
   }
 
   async handlePatreonCallback(code: string, rootUserId: string, communityId: string) {

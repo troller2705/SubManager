@@ -438,7 +438,7 @@
     border: 1px solid var(--rootsdk-border);
     border-radius: 12px;
     padding: 16px;
-    box-shadow: 5px 5px var(--rootsdk-surface-primary);
+    box-shadow: 5px 5px var(--rootsdk-background-tertiary);
   }
 
   .component-section h3 {
