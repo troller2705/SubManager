@@ -51,7 +51,6 @@ async function onStarting(state: RootAppStartState) {
     await db.schema.createTable("user_links", (table) => {
       table.string("root_user_id").primary(); // One link per Root user
       table.string("external_id").notNullable(); // Patreon/SubStar User ID
-      table.string("external_email");
       table.string("provider").notNullable(); // 'patreon' or 'substar'
       table.text("access_token");
       table.text("refresh_token");

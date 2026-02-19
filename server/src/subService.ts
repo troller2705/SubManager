@@ -245,7 +245,7 @@ export class SubService extends SubscriptionServiceBase {
         grant_type: "authorization_code",
         client_id: config.patreon_client_id,
         client_secret: config.patreon_client_secret,
-        redirect_uri: "http://localhost:5173/patreon/callback", // TODO: Replace with your app's callback URL
+        redirect_uri: "http://localhost:5173/api/auth/patreon/callback", // TODO: Replace with your app's callback URL
       }),
     });
   
@@ -276,8 +276,8 @@ export class SubService extends SubscriptionServiceBase {
         new URLSearchParams({
           code,
           grant_type: 'authorization_code',
-          client_id: process.env.PATREON_CLIENT_ID!,
-          client_secret: process.env.PATREON_CLIENT_SECRET!,
+          client_id: process.env.PATREON_ID!,
+          client_secret: process.env.PATREON_SECRET!,
           redirect_uri: process.env.PATREON_REDIRECT_URI!,
         }).toString(),
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }

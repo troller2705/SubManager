@@ -9,8 +9,8 @@ const App: React.FC = () => {
   const [roles, setRoles] = useState<RootRole[]>([]);
   const [mappings, setMappings] = useState<Record<string, string>>({});
 
-  const PATREON_CLIENT_ID = "YOUR_CLIENT_ID";
-  const REDIRECT_URI = encodeURIComponent("http://localhost:3000/api/auth/patreon/callback");
+  const PATREON_CLIENT_ID = "mOJtHYhxNEfozwf8petnM8BsyE6_UUt_6TH9_vvJazmH2e0QuWS6JsRcK-Z5SBcq";
+  const REDIRECT_URI = encodeURIComponent("http://localhost:5173/api/auth/patreon/callback");
 
   const handleLinkPatreon = () => {
     // Scopes required for identity and membership info
@@ -80,7 +80,7 @@ const App: React.FC = () => {
           <div className="header-text">
             <h1 className="app-title">Subscription Manager</h1>
           </div>
-          <button className="button-patreon">
+          <button className="button-patreon" onClick={handleLinkPatreon}>
             <ProviderIcon provider="patreon" size={32}/>
             <span>Sign into Patreon</span>
           </button>
