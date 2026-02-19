@@ -30,15 +30,14 @@ const App: React.FC = () => {
   }, []);
 
   const handleManualSync = async () => {
+    const confirmSync = confirm("This will sync roles for ALL members in the community. Continue?");
+    if (!confirmSync) return;
+  
     try {
       const res = await subscriptionServiceClient.triggerManualSync();
-      if (res.success) {
-        alert(`Sync Successful!\nAdded: ${res.rolesAdded.length}\nRemoved: ${res.rolesRemoved.length}`);
-      } else {
-        alert("Sync failed: " + res.message);
-      }
+      alert(`${res.message}\nAdded: ${res.rolesAdded.length-1}\nRemoved: ${res.rolesRemoved.length-1}`);
     } catch (err) {
-      alert("Request timed out or server is down.");
+      alert("Sync request failed.");
     }
   };
 

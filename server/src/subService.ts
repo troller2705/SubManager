@@ -127,68 +127,77 @@ export class SubService extends SubscriptionServiceBase {
 
   async triggerManualSync(client: Client): Promise<SyncResponse> {
     const db = (rootServer as any).database;
-    const userId = client.userId;
     const communityId = client.communityId;
   
     try {
-      // 1. Get user's active tiers (Fixed: Helper defined below)
-      const activeExternalTierIds = await this.getExternalUserTiers(userId); 
+      // 1. Fetch EVERY member in the community
+      // listAll returns CommunityMember[], so no nested property access needed
+      const allMembers = await rootServer.community.communityMembers.listAll();
   
-      // 2. Fetch mappings (Fixed: Added explicit type to rows)
+      // 2. Fetch defined role mappings once
       const mappings: RoleMappingRow[] = await db("role_mappings")
         .where({ community_id: communityId })
         .select("tier_id", "role_id", "provider");
-  
-      // 3. Determine target roles
-      const targetRoleIds = mappings
-        .filter((m: RoleMappingRow) => activeExternalTierIds.includes(m.tier_id))
-        .map((m: RoleMappingRow) => m.role_id);
-  
-      // 4. Get user's CURRENT roles in the Root community
-      // We use the memberRoles service to list roles for this specific user
-      const currentRolesResponse = await rootServer.community.communityMemberRoles.list({ 
-        userId: userId as any 
-      });
-
-      // Map the branded IDs to strings so you can compare them easily with your DB IDs
-      const currentRoleIds = currentRolesResponse.communityRoleIds?.map(r => r as string);
-
-      // 5. Calculate diff
-      const rolesToAdd = targetRoleIds.filter((id: string) => !currentRoleIds?.includes(id));
-
-      // Only remove roles that are actually managed by our sub system 
-      // to avoid stripping Admin/Moderator roles.
-      const managedRoleIds = mappings.map((m: RoleMappingRow) => m.role_id);
-      const rolesToRemove = managedRoleIds.filter((id: string) => 
-        currentRoleIds?.includes(id) && !targetRoleIds.includes(id)
-      );
-
-      // 6. Apply changes (Fixed: Root SDK .add/.remove takes an object)
-      for (const roleId of rolesToAdd) {
-        let roleToAdd: CommunityMemberRoleAddRequest = {
-          // Cast the string to the Branded Type required by the SDK
-          communityRoleId: roleId as any, 
-          userIds: [userId as any]
-        };
-        await rootServer.community.communityMemberRoles.add(roleToAdd);
-      }
       
-      for (const roleId of rolesToRemove) {
-        let roleToRemove: CommunityMemberRoleRemoveRequest = {
-          communityRoleId: roleId as any,
-          userIds: [userId as any]
-        };
-        await rootServer.community.communityMemberRoles.remove(roleToRemove);
+      const managedRoleIds = mappings.map((m: RoleMappingRow) => m.role_id);
+  
+      let totalAddedCount = 0;
+      let totalRemovedCount = 0;
+  
+      // 3. Process the loop
+      for (const member of allMembers) {
+        const currentUserId = member.userId;
+  
+        // 4. Get active external tiers (Patreon/SubStar)
+        const activeExternalTierIds = await this.getExternalUserTiers(currentUserId as any); 
+  
+        // 5. Determine target roles
+        const targetRoleIds = mappings
+          .filter((m: RoleMappingRow) => activeExternalTierIds.includes(m.tier_id))
+          .map((m: RoleMappingRow) => m.role_id);
+  
+        // 6. Get CURRENT roles using the specific member GUID
+        const currentRolesRes = await rootServer.community.communityMemberRoles.list({ 
+          userId: currentUserId as any 
+        });
+        const currentRoleIds = currentRolesRes.communityRoleIds?.map(r => r as string) || [];
+  
+        // 7. Calculate Diff
+        const rolesToAdd = targetRoleIds.filter(id => !currentRoleIds.includes(id));
+        const rolesToRemove = managedRoleIds.filter(id => 
+          currentRoleIds.includes(id) && !targetRoleIds.includes(id)
+        );
+  
+        // 8. Apply Additions
+        for (const roleId of rolesToAdd) {
+          await rootServer.community.communityMemberRoles.add({
+            communityRoleId: roleId as any, 
+            userIds: [currentUserId as any]
+          });
+          totalAddedCount++;
+        }
+        
+        // 9. Apply Removals
+        for (const roleId of rolesToRemove) {
+          await rootServer.community.communityMemberRoles.remove({
+            communityRoleId: roleId as any,
+            userIds: [currentUserId as any]
+          });
+          totalRemovedCount++;
+        }
+  
+        // Small pause to prevent hitting rate limits
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
   
       return { 
         success: true, 
-        message: "Sync complete", 
-        rolesAdded: rolesToAdd, 
-        rolesRemoved: rolesToRemove 
+        message: `Global sync complete. Processed ${allMembers.length} members.`, 
+        rolesAdded: [totalAddedCount.toString()], 
+        rolesRemoved: [totalRemovedCount.toString()] 
       };
     } catch (error) {
-      console.error("Sync failed:", error);
+      console.error("Manual Sync failed:", error);
       return { success: false, message: "Sync failed", rolesAdded: [], rolesRemoved: [] };
     }
   }
