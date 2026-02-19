@@ -3,7 +3,9 @@
 // tslint: disable
 
 import {
-  MappingRequest,
+  LinkPatreonRequest,
+	LinkPatreonResponse,
+	MappingRequest,
 	SyncResponse,
 	TierList,
 	Void
@@ -22,6 +24,7 @@ export abstract class SubscriptionServiceBase implements RootServerService {
 	abstract getTiers(client: Client): Promise<TierList>;
 	abstract saveMapping(request: MappingRequest,client: Client): Promise<void>;
 	abstract triggerManualSync(client: Client): Promise<SyncResponse>;
+	abstract linkPatreonAccount(request: LinkPatreonRequest, client: Client): Promise<LinkPatreonResponse>;
 
 	private __register(): UntypedServerMethodDefinition[] {
 		return [	{
@@ -47,6 +50,14 @@ export abstract class SubscriptionServiceBase implements RootServerService {
 			path: '/.SubscriptionService/TriggerManualSync',
 			requestDeserialize: bytes => Void.fromBinary(bytes),
 			responseSerialize: value => SyncResponse.toBinary(value)
+		},
+		{
+			serviceName: 'SubscriptionService',
+			methodName: 'LinkPatreonAccount',
+			funct: (e: LinkPatreonRequest, c: Client) => { return this.linkPatreonAccount(e, c) },
+			path: '/.SubscriptionService/LinkPatreonAccount',
+			requestDeserialize: bytes => LinkPatreonRequest.fromBinary(bytes),
+			responseSerialize: value => LinkPatreonResponse.toBinary(value)
 		},
 	]}
 

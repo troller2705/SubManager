@@ -12,7 +12,9 @@
     "@submanager/gen-client": "file:./networking/gen/client",
     "@submanager/gen-server": "file:./networking/gen/server",
     "@submanager/gen-shared": "file:./networking/gen/shared",
-    "express": "^5.2.1"
+    "axios": "^1.13.5",
+    "express": "^5.2.1",
+    "patreon": "^0.4.1"
   },
   "devDependencies": {
     "@rootsdk/dev-tools": "*",

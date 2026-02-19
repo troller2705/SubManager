@@ -7,10 +7,16 @@ import { ProviderIcon } from "./BrandIcons";
 const App: React.FC = () => {
   const [tiers, setTiers] = useState<Tier[]>([]);
   const [roles, setRoles] = useState<RootRole[]>([]);
-  
-  // Use an object to track values per Tier ID
-  // Format: { [tierId: string]: roleId }
   const [mappings, setMappings] = useState<Record<string, string>>({});
+
+  const PATREON_CLIENT_ID = "YOUR_CLIENT_ID";
+  const REDIRECT_URI = encodeURIComponent("http://localhost:3000/api/auth/patreon/callback");
+
+  const handleLinkPatreon = () => {
+    // Scopes required for identity and membership info
+    const scope = "identity identity.memberships";
+    window.location.href = `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${PATREON_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scope}`;
+  };
 
   useEffect(() => {
     subscriptionServiceClient.getTiers().then(res => {
@@ -26,6 +32,15 @@ const App: React.FC = () => {
       
       // OPTIONAL: If your API eventually returns existing mappings, 
       // you would initialize the state here.
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      if (code) {
+        subscriptionServiceClient.linkPatreonAccount({ code }).then(res => {
+          if(res.success) alert("Account Linked!");
+          // Clean URL
+          window.history.replaceState({}, document.title, "/");
+        });
+      }
     });
   }, []);
 

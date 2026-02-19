@@ -11,6 +11,28 @@ import type { PartialMessage } from "@protobuf-ts/runtime";
 import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
 /**
+ * Add a request message
+ *
+ * @generated from protobuf message LinkPatreonRequest
+ */
+export interface LinkPatreonRequest {
+    /**
+     * @generated from protobuf field: string code = 1
+     */
+    code: string;
+}
+/**
+ * Add a response message
+ *
+ * @generated from protobuf message LinkPatreonResponse
+ */
+export interface LinkPatreonResponse {
+    /**
+     * @generated from protobuf field: bool success = 1
+     */
+    success: boolean;
+}
+/**
  * @generated from protobuf message RootRole
  */
 export interface RootRole {
@@ -112,6 +134,100 @@ export interface SyncResponse {
      */
     rolesRemoved: string[];
 }
+// @generated message type with reflection information, may provide speed optimized methods
+class LinkPatreonRequest$Type extends MessageType<LinkPatreonRequest> {
+    constructor() {
+        super("LinkPatreonRequest", [
+            { no: 1, name: "code", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<LinkPatreonRequest>): LinkPatreonRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.code = "";
+        if (value !== undefined)
+            reflectionMergePartial<LinkPatreonRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: LinkPatreonRequest): LinkPatreonRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string code */ 1:
+                    message.code = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: LinkPatreonRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string code = 1; */
+        if (message.code !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.code);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message LinkPatreonRequest
+ */
+export const LinkPatreonRequest = new LinkPatreonRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class LinkPatreonResponse$Type extends MessageType<LinkPatreonResponse> {
+    constructor() {
+        super("LinkPatreonResponse", [
+            { no: 1, name: "success", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
+        ]);
+    }
+    create(value?: PartialMessage<LinkPatreonResponse>): LinkPatreonResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.success = false;
+        if (value !== undefined)
+            reflectionMergePartial<LinkPatreonResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: LinkPatreonResponse): LinkPatreonResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* bool success */ 1:
+                    message.success = reader.bool();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: LinkPatreonResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* bool success = 1; */
+        if (message.success !== false)
+            writer.tag(1, WireType.Varint).bool(message.success);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message LinkPatreonResponse
+ */
+export const LinkPatreonResponse = new LinkPatreonResponse$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class RootRole$Type extends MessageType<RootRole> {
     constructor() {

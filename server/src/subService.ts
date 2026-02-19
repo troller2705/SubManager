@@ -1,6 +1,7 @@
 import { Client, CommunityMemberRoleAddRequest, CommunityMemberRoleRemoveRequest, rootServer } from "@rootsdk/server-app";
-import { TierList, MappingRequest, SyncResponse } from "@submanager/gen-shared";
+import { TierList, MappingRequest, SyncResponse, LinkPatreonRequest, LinkPatreonResponse } from "@submanager/gen-shared";
 import { SubscriptionServiceBase } from "@submanager/gen-server";
+import axios from 'axios';
 
 interface RoleMappingRow {
   tier_id: string;
@@ -202,11 +203,33 @@ export class SubService extends SubscriptionServiceBase {
     }
   }
   
-  // Fixed: Added the missing helper method
   private async getExternalUserTiers(userId: string): Promise<string[]> {
-    // This is where we will call Patreon/SubscribeStar APIs later.
-    // For now, return a mock to test the logic flow.
-    return ["local_1"]; 
+    const db = (rootServer as any).database;
+  
+    // 1. Look up the user's linked account
+    const link = await db("user_links")
+      .where({ root_user_id: userId })
+      .first();
+  
+    if (!link) {
+      return []; // User hasn't linked an account, so they get no sub-roles
+    }
+  
+    // 2. Call the external API (Patreon Example)
+    if (link.provider === 'patreon') {
+      try {
+        // We'll use a library like 'axios' to hit Patreon's /identity endpoint
+        // fetching "memberships.currently_entitled_tiers"
+        const tiers = await this.fetchPatreonTiers(link.access_token);
+        return tiers; 
+      } catch (err) {
+        // If token is expired, we would handle refresh logic here
+        console.error(`Failed to fetch Patreon tiers for ${userId}`);
+        return [];
+      }
+    }
+  
+    return [];
   }
 
   async handlePatreonCallback(code: string, rootUserId: string, communityId: string) {
@@ -240,6 +263,68 @@ export class SubService extends SubscriptionServiceBase {
       .insert({ root_user_id: rootUserId, patreon_id: patreonId })
       .onConflict("root_user_id")
       .merge();
+  }
+
+  async linkPatreonAccount(request: LinkPatreonRequest, client: Client): Promise<LinkPatreonResponse> {
+    const db = (rootServer as any).database;
+    const userId = client.userId;
+    const code = request.code;
+
+    try {
+      // 1. Exchange code for tokens
+      const response = await axios.post('https://www.patreon.com/api/oauth2/token', 
+        new URLSearchParams({
+          code,
+          grant_type: 'authorization_code',
+          client_id: process.env.PATREON_CLIENT_ID!,
+          client_secret: process.env.PATREON_CLIENT_SECRET!,
+          redirect_uri: process.env.PATREON_REDIRECT_URI!,
+        }).toString(),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
+
+      const { access_token, refresh_token, expires_in } = response.data;
+
+      // 2. Fetch User Info to get Patreon ID
+      const userRes = await axios.get('https://www.patreon.com/api/oauth2/v2/identity', {
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+      const externalId = userRes.data.data.id;
+
+      // 3. Save to user_links table
+      await db("user_links")
+        .insert({
+          root_user_id: userId,
+          external_id: externalId,
+          provider: 'patreon',
+          access_token,
+          refresh_token,
+          expires_at: new Date(Date.now() + expires_in * 1000)
+        })
+        .onConflict("root_user_id")
+        .merge();
+
+      return { success: true };
+    } catch (error) {
+      console.error("Patreon link failed:", error);
+      return { success: false };
+    }
+  }
+
+  // Update the real fetcher we left as a black box earlier
+  private async fetchPatreonTiers(accessToken: string): Promise<string[]> {
+    const url = "https://www.patreon.com/api/oauth2/v2/identity?include=memberships.currently_entitled_tiers&fields[tier]=title";
+    
+    const response = await axios.get(url, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    // Extract Tier IDs from the 'included' section of the V2 response
+    const tiers = response.data.included
+      ?.filter((obj: any) => obj.type === 'tier')
+      ?.map((tier: any) => tier.id) || [];
+
+    return tiers;
   }
 }
 

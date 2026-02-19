@@ -3,7 +3,9 @@
 // tslint: disable
 
 import {
-  MappingRequest,
+  LinkPatreonRequest,
+	LinkPatreonResponse,
+	MappingRequest,
 	SyncResponse,
 	TierList,
 	Void
@@ -32,6 +34,9 @@ export class SubscriptionServiceClient  {
 	}
 	triggerManualSync():Promise<SyncResponse> {
 		return (<any>rootClient).sendWithResponse('/.SubscriptionService/TriggerManualSync',{}, this.triggerManualSync);
+	}
+	linkPatreonAccount(request: LinkPatreonRequest):Promise<LinkPatreonResponse> {
+		return (<any>rootClient).sendWithResponse('/.SubscriptionService/LinkPatreonAccount',request, this.linkPatreonAccount);
 	}private __register(): UntypedClientMethodDefinition[] {
 		return [	{
       serviceName: 'SubscriptionServiceClient',
@@ -53,6 +58,13 @@ export class SubscriptionServiceClient  {
 			path: '/.SubscriptionService/TriggerManualSync',
 			requestSerialize: () => Void.toBinary({}),
 			responseDeserialize: bytes => SyncResponse.fromBinary(bytes)
+    },
+		{
+      serviceName: 'SubscriptionServiceClient',
+			methodName: 'LinkPatreonAccount',
+			path: '/.SubscriptionService/LinkPatreonAccount',
+			requestSerialize: value => LinkPatreonRequest.toBinary(value),
+			responseDeserialize: bytes => LinkPatreonResponse.fromBinary(bytes)
     },
 	]}
 }

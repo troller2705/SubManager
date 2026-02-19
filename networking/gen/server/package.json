@@ -1,6 +1,6 @@
 {
   "name": "@submanager/gen-server",
-  "version": "1.0.1771470758112",
+  "version": "1.0.1771520885456",
 	"dependencies": {
 		"@submanager/gen-shared": "file:../shared"
 	},

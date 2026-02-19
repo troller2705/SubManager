@@ -6,6 +6,17 @@ service SubscriptionService {
   rpc GetTiers(rootsdk.Void) returns (TierList);
   rpc SaveMapping(MappingRequest) returns (rootsdk.Void);
   rpc TriggerManualSync(rootsdk.Void) returns (SyncResponse);
+  rpc LinkPatreonAccount(LinkPatreonRequest) returns (LinkPatreonResponse);
+}
+
+// Add a request message
+message LinkPatreonRequest {
+  string code = 1;
+}
+
+// Add a response message
+message LinkPatreonResponse {
+  bool success = 1;
 }
 
 message RootRole {
