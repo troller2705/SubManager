@@ -59,7 +59,7 @@ const App: React.FC = () => {
             <h1 className="app-title">Subscription Manager</h1>
           </div>
           <button className="button-patreon">
-            <ProviderIcon provider="patreon" size={22}/>
+            <ProviderIcon provider="patreon" size={32}/>
             <span>Sign into Patreon</span>
           </button>
 
@@ -79,7 +79,7 @@ const App: React.FC = () => {
       {tiers.map(tier => (
         <div className="component-section" key={`${tier.provider}-${tier.id}`} style={{ margin: "10px 0", justifyContent: "space-between", display: "flex", alignItems: "center"}}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <ProviderIcon provider={tier.provider} size={tier.provider === 'patreon' ? 22 : 32}/>
+            <ProviderIcon provider={tier.provider} size={32}/>
             <strong>{tier.name}</strong>
           </div>
           <Dropdown
