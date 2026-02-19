@@ -156,6 +156,15 @@ export class SubService extends SubscriptionServiceBase {
       // 3. Process the loop
       for (const member of allMembers) {
         const currentUserId = member.userId;
+
+        const link = await db("user_links")
+          .where({ root_user_id: currentUserId })
+          .first();
+
+        if (!link) {
+          console.log(`Skipping sync for ${currentUserId}: No linked account found.`);
+          continue; // Move to the next member
+        }
   
         // 4. Get active external tiers (Patreon/SubStar)
         const activeExternalTierIds = await this.getExternalUserTiers(currentUserId as any); 
