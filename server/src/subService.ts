@@ -10,8 +10,10 @@ interface RoleMappingRow {
 }
 
 export class SubService extends SubscriptionServiceBase {
+  
   async getTiers(client: Client): Promise<TierList> {
     const db = (rootServer as any).database;
+    const userId = client.userId;
     const config = await db("community_settings").where({ community_id: client.communityId }).first();
   
     // 1. Fetch Roles
@@ -22,8 +24,13 @@ export class SubService extends SubscriptionServiceBase {
     const savedMappings = await db("role_mappings")
       .where({ community_id: client.communityId })
       .select("tier_id as tierId", "role_id as roleId", "provider");
+
+    // 3. Check if a link exists for this specific Root user
+    const linkedAccount = await db("user_links")
+    .where({ root_user_id: userId, provider: 'patreon' })
+    .first();
   
-    // 3. Aggregate Tiers from multiple sources
+    // 4. Aggregate Tiers from multiple sources
     // const patreonTiers = await this.fetchPatreonTiers(client);
     // const subscribeStarTiers = await this.fetchSubscribeStarTiers(client);
 
@@ -37,7 +44,8 @@ export class SubService extends SubscriptionServiceBase {
     return {
       tiers,
       roles,
-      existingMappings: savedMappings
+      existingMappings: savedMappings,
+      isPatreonLinked: !!linkedAccount
     };
   }
   async getPatreonCommunityTiers(accessToken: string) {

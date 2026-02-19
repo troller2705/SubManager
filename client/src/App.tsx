@@ -8,6 +8,7 @@ const App: React.FC = () => {
   const [tiers, setTiers] = useState<Tier[]>([]);
   const [roles, setRoles] = useState<RootRole[]>([]);
   const [mappings, setMappings] = useState<Record<string, string>>({});
+  const [isLinked, setIsLinked] = useState(false);
 
   const PATREON_CLIENT_ID = "mOJtHYhxNEfozwf8petnM8BsyE6_UUt_6TH9_vvJazmH2e0QuWS6JsRcK-Z5SBcq";
   const REDIRECT_URI = encodeURIComponent("http://localhost:5173/api/auth/patreon/callback");
@@ -19,6 +20,25 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+      const linkAccount = async () => {
+        try {
+          const res = await subscriptionServiceClient.linkPatreonAccount({ code });
+          if (res.success) {
+            setIsLinked(true);
+            alert("Account linked successfully!");
+          }
+        } catch (err) {
+          console.error("Linking failed", err);
+        } finally {
+          // Clean the code out of the URL
+          window.history.replaceState({}, document.title, "/");
+        }
+      };
+      linkAccount();
+    }
     subscriptionServiceClient.getTiers().then(res => {
       setTiers(res.tiers || []);
       setRoles(res.roles || []);
@@ -29,18 +49,11 @@ const App: React.FC = () => {
         initialMappings[`${m.provider}-${m.tierId}`] = m.roleId;
       });
       setMappings(initialMappings);
+
+      setIsLinked(res.isPatreonLinked);
       
       // OPTIONAL: If your API eventually returns existing mappings, 
       // you would initialize the state here.
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      if (code) {
-        subscriptionServiceClient.linkPatreonAccount({ code }).then(res => {
-          if(res.success) alert("Account Linked!");
-          // Clean URL
-          window.history.replaceState({}, document.title, "/");
-        });
-      }
     });
   }, []);
 
@@ -80,10 +93,17 @@ const App: React.FC = () => {
           <div className="header-text">
             <h1 className="app-title">Subscription Manager</h1>
           </div>
-          <button className="button-patreon" onClick={handleLinkPatreon}>
-            <ProviderIcon provider="patreon" size={32}/>
-            <span>Sign into Patreon</span>
-          </button>
+          {isLinked ? (
+            <button className="button-patreon" disabled>
+              <ProviderIcon provider="patreon" size={22}/> 
+              Patreon Linked
+            </button>
+          ) : (
+            <button className="button-patreon" onClick={handleLinkPatreon}>
+              <ProviderIcon provider="patreon" size={22}/> 
+              Link Patreon Account
+            </button>
+          )}
 
           <button className="button-substar">
             <ProviderIcon provider="substar" size={32}/>

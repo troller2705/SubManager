@@ -95,6 +95,10 @@ export interface TierList {
      * @generated from protobuf field: repeated Mapping existing_mappings = 3
      */
     existingMappings: Mapping[];
+    /**
+     * @generated from protobuf field: bool is_patreon_linked = 4
+     */
+    isPatreonLinked: boolean;
 }
 /**
  * @generated from protobuf message MappingRequest
@@ -415,7 +419,8 @@ class TierList$Type extends MessageType<TierList> {
         super("TierList", [
             { no: 1, name: "tiers", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Tier },
             { no: 2, name: "roles", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => RootRole },
-            { no: 3, name: "existing_mappings", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Mapping }
+            { no: 3, name: "existing_mappings", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Mapping },
+            { no: 4, name: "is_patreon_linked", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<TierList>): TierList {
@@ -423,6 +428,7 @@ class TierList$Type extends MessageType<TierList> {
         message.tiers = [];
         message.roles = [];
         message.existingMappings = [];
+        message.isPatreonLinked = false;
         if (value !== undefined)
             reflectionMergePartial<TierList>(this, message, value);
         return message;
@@ -440,6 +446,9 @@ class TierList$Type extends MessageType<TierList> {
                     break;
                 case /* repeated Mapping existing_mappings */ 3:
                     message.existingMappings.push(Mapping.internalBinaryRead(reader, reader.uint32(), options));
+                    break;
+                case /* bool is_patreon_linked */ 4:
+                    message.isPatreonLinked = reader.bool();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -462,6 +471,9 @@ class TierList$Type extends MessageType<TierList> {
         /* repeated Mapping existing_mappings = 3; */
         for (let i = 0; i < message.existingMappings.length; i++)
             Mapping.internalBinaryWrite(message.existingMappings[i], writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* bool is_patreon_linked = 4; */
+        if (message.isPatreonLinked !== false)
+            writer.tag(4, WireType.Varint).bool(message.isPatreonLinked);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

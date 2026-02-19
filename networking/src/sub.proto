@@ -40,6 +40,7 @@ message TierList {
   repeated Tier tiers = 1;
   repeated RootRole roles = 2;
   repeated Mapping existing_mappings = 3;
+  bool is_patreon_linked = 4;
 }
 
 message MappingRequest {

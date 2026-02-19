@@ -1,6 +1,6 @@
 {
   "name": "@submanager/gen-shared",
-  "version": "1.0.1771520885455",
+  "version": "1.0.1771525927958",
   "main": "./dist/cjs/index.js",
   "typings": "./dist/cjs/index.d.ts",
   "module": "./dist/mjs/index.js",
