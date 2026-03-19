@@ -1,10 +1,15 @@
 import React from "react";
 import './App.css';
-import Admin from "./pages/Admins.tsx";
+import Admins from "./pages/Admins.tsx";
+// import Users from "./pages/Users.tsx";
+import Nav from "./Nav.tsx";
 
 const App: React.FC = () => {
     return(
-        <Admin/>
+        <div>
+            <Nav/>
+            <Admins/>
+        </div>
     )
 }
 
