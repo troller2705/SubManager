@@ -1,9 +1,27 @@
 import './Nav.css';
-import React, { useState } from "react";
+import React from "react";
 
-const Nav: React.FC = () => {
-    const [activeTab, setActiveTab] = useState('user');
-    const tabs = ['user', 'admin', 'settings'];
+// Define the exact strings we expect for the pages
+export type PageView = 'user' | 'admin';
+
+// Tell TypeScript what props this component accepts
+interface NavProps {
+    activePage: PageView;
+    onNavigate: (page: PageView) => void;
+    isAdmin: boolean;
+}
+
+const Nav: React.FC<NavProps> = ({ activePage, onNavigate, isAdmin }) => {
+    // We use your PageView types as the IDs
+    // Base tabs that everyone sees
+    const tabs: { id: PageView, label: string }[] = [
+        { id: 'user', label: 'User' }
+    ];
+
+    // Conditionally push the admin tab into the array
+    if (isAdmin) {
+        tabs.push({ id: 'admin', label: 'Admin' });
+    }
 
     return (
         <div className="nav-container">
@@ -13,16 +31,15 @@ const Nav: React.FC = () => {
                 <nav className="nav">
                     {tabs.map((tab) => (
                         <a
-                            key={tab}
-                            href="#"
-                            className={activeTab === tab ? 'active' : ''}
+                            key={tab.id}
+                            href={`#${tab.id}`} // Dummy link just for valid HTML
+                            className={activePage === tab.id ? 'active' : ''}
                             onClick={(e) => {
                                 e.preventDefault();
-                                setActiveTab(tab);
+                                onNavigate(tab.id); // Tell App.tsx to change the page
                             }}
                         >
-                            {/* Capitalize the first letter */}
-                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                            {tab.label}
                         </a>
                     ))}
                 </nav>

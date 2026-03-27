@@ -3,6 +3,7 @@ import { subscriptionServiceClient } from "@submanager/gen-client";
 import { Tier, RootRole } from "@submanager/gen-shared";
 import '../App.css';
 import { ProviderIcon } from "../BrandIcons";
+import {PATREON_CLIENT_ID, PATREON_REDIRECT_URI} from '../vars.ts';
 
 const Admin: React.FC = () => {
     const [tiers, setTiers] = useState<Tier[]>([]);
@@ -10,13 +11,12 @@ const Admin: React.FC = () => {
     const [mappings, setMappings] = useState<Record<string, string>>({});
     const [isLinked, setIsLinked] = useState(false);
 
-    const PATREON_CLIENT_ID = "mOJtHYhxNEfozwf8petnM8BsyE6_UUt_6TH9_vvJazmH2e0QuWS6JsRcK-Z5SBcq";
-    const REDIRECT_URI = encodeURIComponent("http://localhost:5173/api/auth/patreon/callback");
+    const handleLinkCreatorPatreon = () => {
+        // We add state=creator to the URL!
+        const scope = "identity identity.memberships campaigns campaigns.members";
+        // Notice we added 'campaigns' scopes so we can fetch the community tiers!
 
-    const handleLinkPatreon = () => {
-        // Scopes required for identity and membership info
-        const scope = "identity identity.memberships";
-        window.location.href = `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${PATREON_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scope}`;
+        window.location.href = `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${PATREON_CLIENT_ID}&redirect_uri=${PATREON_REDIRECT_URI}&scope=${scope}&state=creator`;
     };
 
     useEffect(() => {
@@ -43,7 +43,7 @@ const Admin: React.FC = () => {
             setTiers(res.tiers || []);
             setRoles(res.roles || []);
 
-            // Auto-populate the dropdowns with existing mappings from the database
+            // Autopopulate the dropdowns with existing mappings from the database
             const initialMappings: Record<string, string> = {};
             res.existingMappings?.forEach(m => {
                 initialMappings[`${m.provider}-${m.tierId}`] = m.roleId;
@@ -86,20 +86,40 @@ const Admin: React.FC = () => {
         });
     };
 
+    // Pass the event object 'e' into the function
+    const handleLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
+        const buttonClassName = e.currentTarget.className;
+
+        // match() returns an array. Index 1 is the first capture group (the word after the hyphen)
+        const match = buttonClassName.match(/button-([a-zA-Z0-9\-]+)/);
+
+        if (match) {
+            const afterWord = match[1];
+            switch (afterWord){
+                case "patreon":
+
+                    break
+                case "substar":
+                    
+                    break;
+            }
+        }
+    }
+
     return (
-        <div className="app-container">
+        <div>
             <header className="app-header">
                 <div className="header-content">
                     <div className="header-text">
-                        <h1 className="app-title">Subscription Manager</h1>
+                        <h1 className="app-title">Settings</h1>
                     </div>
                     {isLinked ? (
-                        <button className="button-patreon" disabled>
+                        <button className="button-patreon" style={{opacity: 0.5}} onClick={handleLogout}>
                             <ProviderIcon provider="patreon" size={22}/>
                             Patreon Linked
                         </button>
                     ) : (
-                        <button className="button-patreon" onClick={handleLinkPatreon}>
+                        <button className="button-patreon" onClick={handleLinkCreatorPatreon}>
                             <ProviderIcon provider="patreon" size={22}/>
                             Link Patreon Account
                         </button>

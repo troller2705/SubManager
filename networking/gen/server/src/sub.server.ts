@@ -6,6 +6,7 @@ import {
   LinkPatreonRequest,
 	LinkPatreonResponse,
 	MappingRequest,
+	SettingsRequest,
 	SyncResponse,
 	TierList,
 	Void
@@ -25,6 +26,7 @@ export abstract class SubscriptionServiceBase implements RootServerService {
 	abstract saveMapping(request: MappingRequest,client: Client): Promise<void>;
 	abstract triggerManualSync(client: Client): Promise<SyncResponse>;
 	abstract linkPatreonAccount(request: LinkPatreonRequest, client: Client): Promise<LinkPatreonResponse>;
+	abstract saveSettings(request: SettingsRequest,client: Client): Promise<void>;
 
 	private __register(): UntypedServerMethodDefinition[] {
 		return [	{
@@ -58,6 +60,14 @@ export abstract class SubscriptionServiceBase implements RootServerService {
 			path: '/.SubscriptionService/LinkPatreonAccount',
 			requestDeserialize: bytes => LinkPatreonRequest.fromBinary(bytes),
 			responseSerialize: value => LinkPatreonResponse.toBinary(value)
+		},
+		{
+			serviceName: 'SubscriptionService',
+			methodName: 'SaveSettings',
+			funct: (e: SettingsRequest, c: Client) => { return this.saveSettings(e, c) },
+			path: '/.SubscriptionService/SaveSettings',
+			requestDeserialize: bytes => SettingsRequest.fromBinary(bytes),
+			responseSerialize: value => Void.toBinary({})
 		},
 	]}
 

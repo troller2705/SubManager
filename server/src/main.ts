@@ -62,10 +62,18 @@ async function onStarting(state: RootAppStartState) {
   if (!(await db.schema.hasTable("community_settings"))) {
     await db.schema.createTable("community_settings", (table) => {
       table.string("community_id").primary();
-      table.string("patreon_webhook_secret").nullable();
+
+      // Patreon Creator Tokens
+      table.text("patreon_access_token").nullable();
+      table.text("patreon_refresh_token").nullable();
+      table.timestamp("patreon_expires_at").nullable();
+      table.string("patreon_webhook_secret").nullable(); // Still needed for Patreon's per-campaign webhook
+
+      // SubscribeStar Creator Tokens
+      table.text("substar_access_token").nullable();
+      table.text("substar_refresh_token").nullable();
+      table.timestamp("substar_expires_at").nullable();
       table.string("substar_webhook_secret").nullable();
-      table.string("patreon_client_id").nullable();
-      table.string("patreon_client_secret").nullable();
     });
   }
 

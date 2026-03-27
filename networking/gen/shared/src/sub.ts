@@ -99,6 +99,10 @@ export interface TierList {
      * @generated from protobuf field: bool is_patreon_linked = 4
      */
     isPatreonLinked: boolean;
+    /**
+     * @generated from protobuf field: bool is_admin = 5
+     */
+    isAdmin: boolean;
 }
 /**
  * @generated from protobuf message MappingRequest
@@ -137,6 +141,19 @@ export interface SyncResponse {
      * @generated from protobuf field: repeated string roles_removed = 4
      */
     rolesRemoved: string[];
+}
+/**
+ * @generated from protobuf message SettingsRequest
+ */
+export interface SettingsRequest {
+    /**
+     * @generated from protobuf field: string patreon_webhook_secret = 1
+     */
+    patreonWebhookSecret: string;
+    /**
+     * @generated from protobuf field: string substar_webhook_secret = 2
+     */
+    substarWebhookSecret: string;
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class LinkPatreonRequest$Type extends MessageType<LinkPatreonRequest> {
@@ -420,7 +437,8 @@ class TierList$Type extends MessageType<TierList> {
             { no: 1, name: "tiers", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Tier },
             { no: 2, name: "roles", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => RootRole },
             { no: 3, name: "existing_mappings", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Mapping },
-            { no: 4, name: "is_patreon_linked", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
+            { no: 4, name: "is_patreon_linked", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 5, name: "is_admin", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<TierList>): TierList {
@@ -429,6 +447,7 @@ class TierList$Type extends MessageType<TierList> {
         message.roles = [];
         message.existingMappings = [];
         message.isPatreonLinked = false;
+        message.isAdmin = false;
         if (value !== undefined)
             reflectionMergePartial<TierList>(this, message, value);
         return message;
@@ -449,6 +468,9 @@ class TierList$Type extends MessageType<TierList> {
                     break;
                 case /* bool is_patreon_linked */ 4:
                     message.isPatreonLinked = reader.bool();
+                    break;
+                case /* bool is_admin */ 5:
+                    message.isAdmin = reader.bool();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -474,6 +496,9 @@ class TierList$Type extends MessageType<TierList> {
         /* bool is_patreon_linked = 4; */
         if (message.isPatreonLinked !== false)
             writer.tag(4, WireType.Varint).bool(message.isPatreonLinked);
+        /* bool is_admin = 5; */
+        if (message.isAdmin !== false)
+            writer.tag(5, WireType.Varint).bool(message.isAdmin);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -618,3 +643,58 @@ class SyncResponse$Type extends MessageType<SyncResponse> {
  * @generated MessageType for protobuf message SyncResponse
  */
 export const SyncResponse = new SyncResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class SettingsRequest$Type extends MessageType<SettingsRequest> {
+    constructor() {
+        super("SettingsRequest", [
+            { no: 1, name: "patreon_webhook_secret", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "substar_webhook_secret", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<SettingsRequest>): SettingsRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.patreonWebhookSecret = "";
+        message.substarWebhookSecret = "";
+        if (value !== undefined)
+            reflectionMergePartial<SettingsRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: SettingsRequest): SettingsRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string patreon_webhook_secret */ 1:
+                    message.patreonWebhookSecret = reader.string();
+                    break;
+                case /* string substar_webhook_secret */ 2:
+                    message.substarWebhookSecret = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: SettingsRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string patreon_webhook_secret = 1; */
+        if (message.patreonWebhookSecret !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.patreonWebhookSecret);
+        /* string substar_webhook_secret = 2; */
+        if (message.substarWebhookSecret !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.substarWebhookSecret);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message SettingsRequest
+ */
+export const SettingsRequest = new SettingsRequest$Type();

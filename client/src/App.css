@@ -52,6 +52,7 @@
     --rootsdk-info: #3B82F6;
     --rootsdk-warning: #F59E0B;
     --rootsdk-error: #EF4444;
+     --rootsdk-success: #059669;
   
     /* Mention Colors */
     --rootsdk-self-mention: rgba(124, 58, 237, 0.15);

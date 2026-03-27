@@ -7,6 +7,7 @@ service SubscriptionService {
   rpc SaveMapping(MappingRequest) returns (rootsdk.Void);
   rpc TriggerManualSync(rootsdk.Void) returns (SyncResponse);
   rpc LinkPatreonAccount(LinkPatreonRequest) returns (LinkPatreonResponse);
+  rpc SaveSettings(SettingsRequest) returns (rootsdk.Void);
 }
 
 // Add a request message
@@ -41,6 +42,7 @@ message TierList {
   repeated RootRole roles = 2;
   repeated Mapping existing_mappings = 3;
   bool is_patreon_linked = 4;
+  bool is_admin = 5;
 }
 
 message MappingRequest {
@@ -54,4 +56,9 @@ message SyncResponse {
   string message = 2;
   repeated string roles_added = 3;
   repeated string roles_removed = 4;
+}
+
+message SettingsRequest {
+  string patreon_webhook_secret = 1;
+  string substar_webhook_secret = 2;
 }

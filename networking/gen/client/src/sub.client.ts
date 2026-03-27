@@ -6,6 +6,7 @@ import {
   LinkPatreonRequest,
 	LinkPatreonResponse,
 	MappingRequest,
+	SettingsRequest,
 	SyncResponse,
 	TierList,
 	Void
@@ -37,6 +38,10 @@ export class SubscriptionServiceClient  {
 	}
 	linkPatreonAccount(request: LinkPatreonRequest):Promise<LinkPatreonResponse> {
 		return (<any>rootClient).sendWithResponse('/.SubscriptionService/LinkPatreonAccount',request, this.linkPatreonAccount);
+	}
+	saveSettings(request: SettingsRequest):Promise<void> {
+			(<any>rootClient).sendWithResponse('/.SubscriptionService/SaveSettings',request, this.saveSettings);
+			return Promise.resolve();
 	}private __register(): UntypedClientMethodDefinition[] {
 		return [	{
       serviceName: 'SubscriptionServiceClient',
@@ -65,6 +70,13 @@ export class SubscriptionServiceClient  {
 			path: '/.SubscriptionService/LinkPatreonAccount',
 			requestSerialize: value => LinkPatreonRequest.toBinary(value),
 			responseDeserialize: bytes => LinkPatreonResponse.fromBinary(bytes)
+    },
+		{
+      serviceName: 'SubscriptionServiceClient',
+			methodName: 'SaveSettings',
+			path: '/.SubscriptionService/SaveSettings',
+			requestSerialize: value => SettingsRequest.toBinary(value),
+			responseDeserialize: () => {}
     },
 	]}
 }
