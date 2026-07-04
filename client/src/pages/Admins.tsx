@@ -2,60 +2,65 @@ import React, { useEffect, useState, useRef } from "react";
 import { subscriptionServiceClient } from "@submanager/gen-client";
 import { Tier, RootRole } from "@submanager/gen-shared";
 import '../App.css';
+import './Admins.css';
 import { ProviderIcon } from "../BrandIcons";
-import {PATREON_CLIENT_ID, PATREON_REDIRECT_URI} from '../vars.ts';
+import { PATREON_CLIENT_ID, PATREON_REDIRECT_URI, SUBSTAR_CLIENT_ID, SUBSTAR_REDIRECT_URI } from '../vars.ts';
 
 const Admin: React.FC = () => {
     const [tiers, setTiers] = useState<Tier[]>([]);
     const [roles, setRoles] = useState<RootRole[]>([]);
     const [mappings, setMappings] = useState<Record<string, string>>({});
-    const [isLinked, setIsLinked] = useState(false);
+    const [isPatreonLinked, setIsPatreonLinked] = useState(false);
+    const [isSubstarLinked, setIsSubstarLinked] = useState(false);
+    const [pollingEnabled, setPollingEnabled] = useState(false);
+
+    const [patreonWebhookSecret, setPatreonWebhookSecret] = useState("");
+    const [substarWebhookSecret, setSubstarWebhookSecret] = useState("");
 
     const handleLinkCreatorPatreon = () => {
-        // We add state=creator to the URL!
         const scope = "identity identity.memberships campaigns campaigns.members";
-        // Notice we added 'campaigns' scopes so we can fetch the community tiers!
+        window.location.href = `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${PATREON_CLIENT_ID}&redirect_uri=${PATREON_REDIRECT_URI}&scope=${scope}&state=creator-patreon`;
+    };
 
-        window.location.href = `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${PATREON_CLIENT_ID}&redirect_uri=${PATREON_REDIRECT_URI}&scope=${scope}&state=creator`;
+    // --- NEW: SubscribeStar Linking ---
+    const handleLinkCreatorSubstar = () => {
+        const scope = "user.read tiers.read";
+        window.location.href = `https://subscribestar.com/oauth2/authorize?response_type=code&client_id=${SUBSTAR_CLIENT_ID}&redirect_uri=${SUBSTAR_REDIRECT_URI}&scope=${scope}&state=creator-substar`;
     };
 
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        if (code) {
-            const linkAccount = async () => {
-                try {
-                    const res = await subscriptionServiceClient.linkPatreonAccount({ code });
-                    if (res.success) {
-                        setIsLinked(true);
-                        alert("Account linked successfully!");
-                    }
-                } catch (err) {
-                    console.error("Linking failed", err);
-                } finally {
-                    // Clean the code out of the URL
-                    window.history.replaceState({}, document.title, "/");
-                }
-            };
-            linkAccount();
-        }
+        // Remember, OAuth code parsing is handled in App.tsx now!
         subscriptionServiceClient.getTiers().then(res => {
             setTiers(res.tiers || []);
             setRoles(res.roles || []);
 
-            // Autopopulate the dropdowns with existing mappings from the database
             const initialMappings: Record<string, string> = {};
             res.existingMappings?.forEach(m => {
                 initialMappings[`${m.provider}-${m.tierId}`] = m.roleId;
             });
             setMappings(initialMappings);
 
-            setIsLinked(res.isPatreonLinked);
-
-            // OPTIONAL: If your API eventually returns existing mappings,
-            // you would initialize the state here.
+            setIsPatreonLinked(res.isCreatorPatreonLinked);
+            setIsSubstarLinked(res.isCreatorSubstarLinked);
+            setPollingEnabled(res.isPollingEnabled);
         });
     }, []);
+
+    // --- UPDATED: Save both secrets and polling config ---
+    const handleSaveSettings = async () => {
+        try {
+            await subscriptionServiceClient.saveSettings({
+                patreonWebhookSecret: patreonWebhookSecret,
+                substarWebhookSecret: substarWebhookSecret,
+                enablePolling: pollingEnabled
+            });
+            alert("Settings saved successfully!");
+            setPatreonWebhookSecret("");
+            setSubstarWebhookSecret("");
+        } catch (err) {
+            alert("Failed to save settings. Make sure you have admin permissions.");
+        }
+    };
 
     const handleManualSync = async () => {
         const confirmSync = confirm("This will sync roles for ALL members in the community. Continue?");
@@ -63,11 +68,12 @@ const Admin: React.FC = () => {
 
         try {
             const res = await subscriptionServiceClient.triggerManualSync();
-            alert(`${res.message}\nAdded: ${res.rolesAdded.length-1}\nRemoved: ${res.rolesRemoved.length-1}`);
+            alert(`${res.message}\nAdded: ${res.rolesAdded.length > 0 ? res.rolesAdded[0] : 0}\nRemoved: ${res.rolesRemoved.length > 0 ? res.rolesRemoved[0] : 0}`);
         } catch (err) {
             alert("Sync request failed.");
         }
     };
+
 
     const handleDropdownChange = (tier: Tier, selectedRoleId: string) => {
         const combinedKey = `${tier.provider}-${tier.id}`;
@@ -86,76 +92,160 @@ const Admin: React.FC = () => {
         });
     };
 
-    // Pass the event object 'e' into the function
-    const handleLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
         const buttonClassName = e.currentTarget.className;
-
-        // match() returns an array. Index 1 is the first capture group (the word after the hyphen)
         const match = buttonClassName.match(/button-([a-zA-Z0-9\-]+)/);
 
         if (match) {
-            const afterWord = match[1];
-            switch (afterWord){
-                case "patreon":
+            const provider = match[1]; // "patreon" or "substar"
 
-                    break
-                case "substar":
-                    
-                    break;
+            const confirmUnlink = confirm(`Are you sure you want to unlink your Creator ${provider} account?`);
+            if (!confirmUnlink) return;
+
+            try {
+                // Call the new RPC
+                await subscriptionServiceClient.unlinkCreatorAccount({ provider });
+
+                // If it's Patreon, update the UI state
+                if (provider === 'patreon') {
+                    setIsPatreonLinked(false);
+                    setTiers([]); // Clear the tiers from the screen
+                }
+                else if (provider === 'substar') {
+                    setIsSubstarLinked(false);
+                    setTiers([]);
+                }
+                alert(`Successfully unlinked ${provider}!`);
+            } catch (err) {
+                alert("Failed to unlink account.");
             }
         }
     }
 
     return (
-        <div>
-            <header className="app-header">
-                <div className="header-content">
-                    <div className="header-text">
-                        <h1 className="app-title">Settings</h1>
-                    </div>
-                    {isLinked ? (
-                        <button className="button-patreon" style={{opacity: 0.5}} onClick={handleLogout}>
-                            <ProviderIcon provider="patreon" size={22}/>
-                            Patreon Linked
-                        </button>
-                    ) : (
-                        <button className="button-patreon" onClick={handleLinkCreatorPatreon}>
-                            <ProviderIcon provider="patreon" size={22}/>
-                            Link Patreon Account
-                        </button>
-                    )}
-
-                    <button className="button-substar">
-                        <ProviderIcon provider="substar" size={32}/>
-                        <span>Sign into SubscribeStar</span>
+      <div>
+          <header className="app-header">
+              <div className="header-content">
+                  <div className="header-text">
+                      <h1 className="app-title">Settings</h1>
+                  </div>
+                  {isPatreonLinked ? (
+                    <button className="button-patreon" style={{opacity: 0.5}} onClick={handleLogout}>
+                        <ProviderIcon provider="patreon" size={22}/>
+                        Patreon Linked
                     </button>
-                    <button className="button-primary" onClick={handleManualSync}>
-                        <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6.99999 2.33149V0.83982C6.99999 0.46482 6.54999 0.281487 6.29166 0.548154L3.95833 2.87315C3.79166 3.03982 3.79166 3.29815 3.95833 3.46482L6.28333 5.78982C6.54999 6.04815 6.99999 5.86482 6.99999 5.48982V3.99815C9.75833 3.99815 12 6.23982 12 8.99815C12 9.65649 11.875 10.2982 11.6333 10.8732C11.5083 11.1732 11.6 11.5148 11.825 11.7398C12.25 12.1648 12.9667 12.0148 13.1917 11.4565C13.5 10.6982 13.6667 9.86482 13.6667 8.99815C13.6667 5.31482 10.6833 2.33149 6.99999 2.33149ZM6.99999 13.9982C4.24166 13.9982 1.99999 11.7565 1.99999 8.99815C1.99999 8.33982 2.12499 7.69815 2.36666 7.12315C2.49166 6.82315 2.39999 6.48149 2.17499 6.25649C1.74999 5.83149 1.03333 5.98149 0.808328 6.53982C0.499995 7.29815 0.333328 8.13149 0.333328 8.99815C0.333328 12.6815 3.31666 15.6648 6.99999 15.6648V17.1565C6.99999 17.5315 7.45 17.7148 7.70833 17.4482L10.0333 15.1232C10.2 14.9565 10.2 14.6982 10.0333 14.5315L7.70833 12.2065C7.45 11.9482 6.99999 12.1315 6.99999 12.5065V13.9982Z" fill="currentColor"/>
-                        </svg>
-                        <span>Sync Users' Tiers</span>
+                  ) : (
+                    <button className="button-patreon" onClick={handleLinkCreatorPatreon}>
+                        <ProviderIcon provider="patreon" size={22}/>
+                        Link Patreon Account
                     </button>
-                </div>
-            </header>
+                  )}
 
-            {tiers.map(tier => (
-                <div className="component-section" key={`${tier.provider}-${tier.id}`} style={{ margin: "10px 0", justifyContent: "space-between", display: "flex", alignItems: "center"}}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <ProviderIcon provider={tier.provider} size={32}/>
-                        <strong>{tier.name}</strong>
+                  {isSubstarLinked ? (
+                    <button className="button-substar" style={{opacity: 0.5}} onClick={handleLogout}>
+                        <ProviderIcon provider="substar" size={22}/>
+                        SubscribeStar Linked
+                    </button>
+                  ) : (
+                      <button className="button-substar" onClick={handleLinkCreatorSubstar}>
+                          <ProviderIcon provider="substar" size={32}/>
+                          Link SubscribeStar Account
+                      </button>
+                  )}
+
+                  <button className="button-primary" onClick={handleManualSync}>
+                      <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M6.99999 2.33149V0.83982C6.99999 0.46482 6.54999 0.281487 6.29166 0.548154L3.95833 2.87315C3.79166 3.03982 3.79166 3.29815 3.95833 3.46482L6.28333 5.78982C6.54999 6.04815 6.99999 5.86482 6.99999 5.48982V3.99815C9.75833 3.99815 12 6.23982 12 8.99815C12 9.65649 11.875 10.2982 11.6333 10.8732C11.5083 11.1732 11.6 11.5148 11.825 11.7398C12.25 12.1648 12.9667 12.0148 13.1917 11.4565C13.5 10.6982 13.6667 9.86482 13.6667 8.99815C13.6667 5.31482 10.6833 2.33149 6.99999 2.33149ZM6.99999 13.9982C4.24166 13.9982 1.99999 11.7565 1.99999 8.99815C1.99999 8.33982 2.12499 7.69815 2.36666 7.12315C2.49166 6.82315 2.39999 6.48149 2.17499 6.25649C1.74999 5.83149 1.03333 5.98149 0.808328 6.53982C0.499995 7.29815 0.333328 8.13149 0.333328 8.99815C0.333328 12.6815 3.31666 15.6648 6.99999 15.6648V17.1565C6.99999 17.5315 7.45 17.7148 7.70833 17.4482L10.0333 15.1232C10.2 14.9565 10.2 14.6982 10.0333 14.5315L7.70833 12.2065C7.45 11.9482 6.99999 12.1315 6.99999 12.5065V13.9982Z" fill="currentColor"/>
+                      </svg>
+                      <span>Sync Users' Tiers</span>
+                  </button>
+              </div>
+          </header>
+
+          {/* --- UPDATED SETTINGS SECTION --- */}
+          <div className="component-section" style={{ margin: "20px 0", padding: "20px", display: "flex", flexDirection: "column", gap: "15px" }}>
+              <div>
+                  <h2 style={{ margin: "0 0 5px 0" }}>API Configuration</h2>
+                  <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+                      Paste your Patreon Webhook Secret here. This is required for roles to sync automatically when a user pledges or cancels.
+                  </p>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "row", gap: "50px", alignItems: "center" }}>
+                  <div>
+                      <h3>Patreon Webhook Secret: </h3>
+                      <input
+                        type="text"
+                        className="key"
+                        name="patreonWebhookSecret"
+                        placeholder="000000"
+                        autoComplete="off"
+                        value={patreonWebhookSecret}
+                        onChange={(e) => setPatreonWebhookSecret(e.target.value)}
+                        style={{ padding: "10px", borderRadius: "6px", border: "1px solid var(--border-color)", background: "var(--surface-1)", color: "white", flex: 1, maxWidth: "400px" }}
+                      />
+                  </div>
+                  <div>
+                      <h3>Subscribestar Webhook Secret: </h3>
+                      <input
+                        type="text"
+                        className="key"
+                        name="substarWebhookSecret"
+                        placeholder="000000"
+                        autoComplete="off"
+                        value={substarWebhookSecret}
+                        onChange={(e) => setSubstarWebhookSecret(e.target.value)}
+                        style={{ padding: "10px", borderRadius: "6px", border: "1px solid var(--border-color)", background: "var(--surface-1)", color: "white", flex: 1, maxWidth: "400px" }}
+                      />
+                  </div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center", position: "relative" }}>
+                  <div style={{ marginTop: "15px", display: "flex", alignItems: "center", gap: "10px" }} onClick={() => setPollingEnabled(!pollingEnabled)}>
+                      <div
+                        id="pollingToggle"
+                        className="switch"
+                        data-checked={pollingEnabled}
+                        role="switch"
+                        aria-checked={pollingEnabled}
+                      >
+                          <div className="switch-thumb" />
+                      </div>
+                      <label htmlFor="pollingToggle" style={{ cursor: "pointer", fontSize: "0.95rem" }}>
+                          <strong>Enable Background Polling</strong>
+                          <span style={{ display: "block", color: "var(--text-secondary)", fontSize: "0.85rem", marginTop: "2px" }}>
+                                    Automatically syncs all users every half-hour. Use this as a fallback if you do not want to configure Webhooks.
+                                </span>
+                      </label>
+                  </div>
+                  <button
+                    className="button-primary"
+                    onClick={handleSaveSettings}
+                    style={{ padding: "10px 20px", position: "absolute", top: "10px", right: "10px" }}
+                  >
+                      Save Settings
+                  </button>
+              </div>
+          </div>
+            <div style={{overflow: "auto"}}>
+                {tiers.map(tier => (
+                    <div className="component-section" key={`${tier.provider}-${tier.id}`} style={{ margin: "10px 0", justifyContent: "space-between", display: "flex", alignItems: "center"}}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <ProviderIcon provider={tier.provider} size={32}/>
+                            <strong>{tier.name}</strong>
+                        </div>
+                        <Dropdown
+                            options={[
+                                { value: '', label: 'Map to Root Role...' },
+                                ...roles.map(r => ({ value: r.id, label: r.name }))
+                            ]}
+                            // Pass the specific value for this specific tier
+                            value={mappings[`${tier.provider}-${tier.id}`] || ''}
+                            onChange={(selectedRoleId) => handleDropdownChange(tier, selectedRoleId)}
+                            placeholder="Select an option"
+                        />
                     </div>
-                    <Dropdown
-                        options={[
-                            { value: '', label: 'Map to Root Role...' },
-                            ...roles.map(r => ({ value: r.id, label: r.name }))
-                        ]}
-                        // Pass the specific value for this specific tier
-                        value={mappings[`${tier.provider}-${tier.id}`] || ''}
-                        onChange={(selectedRoleId) => handleDropdownChange(tier, selectedRoleId)}
-                        placeholder="Select an option"
-                    />
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 };
@@ -250,4 +340,4 @@ export const Dropdown: React.FC<DropdownProps> = ({
     );
 };
 
-export default Admin; // Ensure this export exists
+export default Admin;

@@ -6,18 +6,25 @@ service SubscriptionService {
   rpc GetTiers(rootsdk.Void) returns (TierList);
   rpc SaveMapping(MappingRequest) returns (rootsdk.Void);
   rpc TriggerManualSync(rootsdk.Void) returns (SyncResponse);
-  rpc LinkPatreonAccount(LinkPatreonRequest) returns (LinkPatreonResponse);
+  rpc LinkUserAccount(LinkAccountRequest) returns (LinkAccountResponse);
+  rpc LinkCreatorAccount(LinkAccountRequest) returns (LinkAccountResponse);
   rpc SaveSettings(SettingsRequest) returns (rootsdk.Void);
+
+  rpc UnlinkUserAccount(UnlinkRequest) returns (rootsdk.Void);
+  rpc UnlinkCreatorAccount(UnlinkRequest) returns (rootsdk.Void);
 }
 
-// Add a request message
-message LinkPatreonRequest {
+message LinkAccountRequest {
   string code = 1;
+  string provider = 2; // e.g., "patreon" or "substar"
 }
 
-// Add a response message
-message LinkPatreonResponse {
+message LinkAccountResponse {
   bool success = 1;
+}
+
+message UnlinkRequest {
+  string provider = 1; // "patreon" or "substar"
 }
 
 message RootRole {
@@ -42,7 +49,12 @@ message TierList {
   repeated RootRole roles = 2;
   repeated Mapping existing_mappings = 3;
   bool is_patreon_linked = 4;
-  bool is_admin = 5;
+  bool is_substar_linked = 5;
+  bool is_admin = 6;
+  bool is_polling_enabled = 7;
+
+  bool is_creator_patreon_linked = 8;
+  bool is_creator_substar_linked = 9;
 }
 
 message MappingRequest {
@@ -61,4 +73,5 @@ message SyncResponse {
 message SettingsRequest {
   string patreon_webhook_secret = 1;
   string substar_webhook_secret = 2;
+  bool enable_polling = 3;
 }

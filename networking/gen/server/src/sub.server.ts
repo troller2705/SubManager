@@ -3,12 +3,13 @@
 // tslint: disable
 
 import {
-  LinkPatreonRequest,
-	LinkPatreonResponse,
+  LinkAccountRequest,
+	LinkAccountResponse,
 	MappingRequest,
 	SettingsRequest,
 	SyncResponse,
 	TierList,
+	UnlinkRequest,
 	Void
 } from "@submanager/gen-shared"
 import {
@@ -25,8 +26,11 @@ export abstract class SubscriptionServiceBase implements RootServerService {
 	abstract getTiers(client: Client): Promise<TierList>;
 	abstract saveMapping(request: MappingRequest,client: Client): Promise<void>;
 	abstract triggerManualSync(client: Client): Promise<SyncResponse>;
-	abstract linkPatreonAccount(request: LinkPatreonRequest, client: Client): Promise<LinkPatreonResponse>;
+	abstract linkUserAccount(request: LinkAccountRequest, client: Client): Promise<LinkAccountResponse>;
+	abstract linkCreatorAccount(request: LinkAccountRequest, client: Client): Promise<LinkAccountResponse>;
 	abstract saveSettings(request: SettingsRequest,client: Client): Promise<void>;
+	abstract unlinkUserAccount(request: UnlinkRequest,client: Client): Promise<void>;
+	abstract unlinkCreatorAccount(request: UnlinkRequest,client: Client): Promise<void>;
 
 	private __register(): UntypedServerMethodDefinition[] {
 		return [	{
@@ -55,11 +59,19 @@ export abstract class SubscriptionServiceBase implements RootServerService {
 		},
 		{
 			serviceName: 'SubscriptionService',
-			methodName: 'LinkPatreonAccount',
-			funct: (e: LinkPatreonRequest, c: Client) => { return this.linkPatreonAccount(e, c) },
-			path: '/.SubscriptionService/LinkPatreonAccount',
-			requestDeserialize: bytes => LinkPatreonRequest.fromBinary(bytes),
-			responseSerialize: value => LinkPatreonResponse.toBinary(value)
+			methodName: 'LinkUserAccount',
+			funct: (e: LinkAccountRequest, c: Client) => { return this.linkUserAccount(e, c) },
+			path: '/.SubscriptionService/LinkUserAccount',
+			requestDeserialize: bytes => LinkAccountRequest.fromBinary(bytes),
+			responseSerialize: value => LinkAccountResponse.toBinary(value)
+		},
+		{
+			serviceName: 'SubscriptionService',
+			methodName: 'LinkCreatorAccount',
+			funct: (e: LinkAccountRequest, c: Client) => { return this.linkCreatorAccount(e, c) },
+			path: '/.SubscriptionService/LinkCreatorAccount',
+			requestDeserialize: bytes => LinkAccountRequest.fromBinary(bytes),
+			responseSerialize: value => LinkAccountResponse.toBinary(value)
 		},
 		{
 			serviceName: 'SubscriptionService',
@@ -67,6 +79,22 @@ export abstract class SubscriptionServiceBase implements RootServerService {
 			funct: (e: SettingsRequest, c: Client) => { return this.saveSettings(e, c) },
 			path: '/.SubscriptionService/SaveSettings',
 			requestDeserialize: bytes => SettingsRequest.fromBinary(bytes),
+			responseSerialize: value => Void.toBinary({})
+		},
+		{
+			serviceName: 'SubscriptionService',
+			methodName: 'UnlinkUserAccount',
+			funct: (e: UnlinkRequest, c: Client) => { return this.unlinkUserAccount(e, c) },
+			path: '/.SubscriptionService/UnlinkUserAccount',
+			requestDeserialize: bytes => UnlinkRequest.fromBinary(bytes),
+			responseSerialize: value => Void.toBinary({})
+		},
+		{
+			serviceName: 'SubscriptionService',
+			methodName: 'UnlinkCreatorAccount',
+			funct: (e: UnlinkRequest, c: Client) => { return this.unlinkCreatorAccount(e, c) },
+			path: '/.SubscriptionService/UnlinkCreatorAccount',
+			requestDeserialize: bytes => UnlinkRequest.fromBinary(bytes),
 			responseSerialize: value => Void.toBinary({})
 		},
 	]}

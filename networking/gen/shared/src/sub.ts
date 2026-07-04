@@ -11,26 +11,35 @@ import type { PartialMessage } from "@protobuf-ts/runtime";
 import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
 /**
- * Add a request message
- *
- * @generated from protobuf message LinkPatreonRequest
+ * @generated from protobuf message LinkAccountRequest
  */
-export interface LinkPatreonRequest {
+export interface LinkAccountRequest {
     /**
      * @generated from protobuf field: string code = 1
      */
     code: string;
+    /**
+     * @generated from protobuf field: string provider = 2
+     */
+    provider: string; // e.g., "patreon" or "substar"
 }
 /**
- * Add a response message
- *
- * @generated from protobuf message LinkPatreonResponse
+ * @generated from protobuf message LinkAccountResponse
  */
-export interface LinkPatreonResponse {
+export interface LinkAccountResponse {
     /**
      * @generated from protobuf field: bool success = 1
      */
     success: boolean;
+}
+/**
+ * @generated from protobuf message UnlinkRequest
+ */
+export interface UnlinkRequest {
+    /**
+     * @generated from protobuf field: string provider = 1
+     */
+    provider: string; // "patreon" or "substar"
 }
 /**
  * @generated from protobuf message RootRole
@@ -100,9 +109,25 @@ export interface TierList {
      */
     isPatreonLinked: boolean;
     /**
-     * @generated from protobuf field: bool is_admin = 5
+     * @generated from protobuf field: bool is_substar_linked = 5
+     */
+    isSubstarLinked: boolean;
+    /**
+     * @generated from protobuf field: bool is_admin = 6
      */
     isAdmin: boolean;
+    /**
+     * @generated from protobuf field: bool is_polling_enabled = 7
+     */
+    isPollingEnabled: boolean;
+    /**
+     * @generated from protobuf field: bool is_creator_patreon_linked = 8
+     */
+    isCreatorPatreonLinked: boolean;
+    /**
+     * @generated from protobuf field: bool is_creator_substar_linked = 9
+     */
+    isCreatorSubstarLinked: boolean;
 }
 /**
  * @generated from protobuf message MappingRequest
@@ -154,28 +179,37 @@ export interface SettingsRequest {
      * @generated from protobuf field: string substar_webhook_secret = 2
      */
     substarWebhookSecret: string;
+    /**
+     * @generated from protobuf field: bool enable_polling = 3
+     */
+    enablePolling: boolean;
 }
 // @generated message type with reflection information, may provide speed optimized methods
-class LinkPatreonRequest$Type extends MessageType<LinkPatreonRequest> {
+class LinkAccountRequest$Type extends MessageType<LinkAccountRequest> {
     constructor() {
-        super("LinkPatreonRequest", [
-            { no: 1, name: "code", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        super("LinkAccountRequest", [
+            { no: 1, name: "code", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "provider", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
-    create(value?: PartialMessage<LinkPatreonRequest>): LinkPatreonRequest {
+    create(value?: PartialMessage<LinkAccountRequest>): LinkAccountRequest {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.code = "";
+        message.provider = "";
         if (value !== undefined)
-            reflectionMergePartial<LinkPatreonRequest>(this, message, value);
+            reflectionMergePartial<LinkAccountRequest>(this, message, value);
         return message;
     }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: LinkPatreonRequest): LinkPatreonRequest {
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: LinkAccountRequest): LinkAccountRequest {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
                 case /* string code */ 1:
                     message.code = reader.string();
+                    break;
+                case /* string provider */ 2:
+                    message.provider = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -188,10 +222,13 @@ class LinkPatreonRequest$Type extends MessageType<LinkPatreonRequest> {
         }
         return message;
     }
-    internalBinaryWrite(message: LinkPatreonRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+    internalBinaryWrite(message: LinkAccountRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* string code = 1; */
         if (message.code !== "")
             writer.tag(1, WireType.LengthDelimited).string(message.code);
+        /* string provider = 2; */
+        if (message.provider !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.provider);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -199,24 +236,24 @@ class LinkPatreonRequest$Type extends MessageType<LinkPatreonRequest> {
     }
 }
 /**
- * @generated MessageType for protobuf message LinkPatreonRequest
+ * @generated MessageType for protobuf message LinkAccountRequest
  */
-export const LinkPatreonRequest = new LinkPatreonRequest$Type();
+export const LinkAccountRequest = new LinkAccountRequest$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class LinkPatreonResponse$Type extends MessageType<LinkPatreonResponse> {
+class LinkAccountResponse$Type extends MessageType<LinkAccountResponse> {
     constructor() {
-        super("LinkPatreonResponse", [
+        super("LinkAccountResponse", [
             { no: 1, name: "success", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
-    create(value?: PartialMessage<LinkPatreonResponse>): LinkPatreonResponse {
+    create(value?: PartialMessage<LinkAccountResponse>): LinkAccountResponse {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.success = false;
         if (value !== undefined)
-            reflectionMergePartial<LinkPatreonResponse>(this, message, value);
+            reflectionMergePartial<LinkAccountResponse>(this, message, value);
         return message;
     }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: LinkPatreonResponse): LinkPatreonResponse {
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: LinkAccountResponse): LinkAccountResponse {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
@@ -235,7 +272,7 @@ class LinkPatreonResponse$Type extends MessageType<LinkPatreonResponse> {
         }
         return message;
     }
-    internalBinaryWrite(message: LinkPatreonResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+    internalBinaryWrite(message: LinkAccountResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* bool success = 1; */
         if (message.success !== false)
             writer.tag(1, WireType.Varint).bool(message.success);
@@ -246,9 +283,56 @@ class LinkPatreonResponse$Type extends MessageType<LinkPatreonResponse> {
     }
 }
 /**
- * @generated MessageType for protobuf message LinkPatreonResponse
+ * @generated MessageType for protobuf message LinkAccountResponse
  */
-export const LinkPatreonResponse = new LinkPatreonResponse$Type();
+export const LinkAccountResponse = new LinkAccountResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class UnlinkRequest$Type extends MessageType<UnlinkRequest> {
+    constructor() {
+        super("UnlinkRequest", [
+            { no: 1, name: "provider", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<UnlinkRequest>): UnlinkRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.provider = "";
+        if (value !== undefined)
+            reflectionMergePartial<UnlinkRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: UnlinkRequest): UnlinkRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string provider */ 1:
+                    message.provider = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: UnlinkRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string provider = 1; */
+        if (message.provider !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.provider);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message UnlinkRequest
+ */
+export const UnlinkRequest = new UnlinkRequest$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class RootRole$Type extends MessageType<RootRole> {
     constructor() {
@@ -438,7 +522,11 @@ class TierList$Type extends MessageType<TierList> {
             { no: 2, name: "roles", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => RootRole },
             { no: 3, name: "existing_mappings", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => Mapping },
             { no: 4, name: "is_patreon_linked", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-            { no: 5, name: "is_admin", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
+            { no: 5, name: "is_substar_linked", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 6, name: "is_admin", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 7, name: "is_polling_enabled", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 8, name: "is_creator_patreon_linked", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 9, name: "is_creator_substar_linked", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<TierList>): TierList {
@@ -447,7 +535,11 @@ class TierList$Type extends MessageType<TierList> {
         message.roles = [];
         message.existingMappings = [];
         message.isPatreonLinked = false;
+        message.isSubstarLinked = false;
         message.isAdmin = false;
+        message.isPollingEnabled = false;
+        message.isCreatorPatreonLinked = false;
+        message.isCreatorSubstarLinked = false;
         if (value !== undefined)
             reflectionMergePartial<TierList>(this, message, value);
         return message;
@@ -469,8 +561,20 @@ class TierList$Type extends MessageType<TierList> {
                 case /* bool is_patreon_linked */ 4:
                     message.isPatreonLinked = reader.bool();
                     break;
-                case /* bool is_admin */ 5:
+                case /* bool is_substar_linked */ 5:
+                    message.isSubstarLinked = reader.bool();
+                    break;
+                case /* bool is_admin */ 6:
                     message.isAdmin = reader.bool();
+                    break;
+                case /* bool is_polling_enabled */ 7:
+                    message.isPollingEnabled = reader.bool();
+                    break;
+                case /* bool is_creator_patreon_linked */ 8:
+                    message.isCreatorPatreonLinked = reader.bool();
+                    break;
+                case /* bool is_creator_substar_linked */ 9:
+                    message.isCreatorSubstarLinked = reader.bool();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -496,9 +600,21 @@ class TierList$Type extends MessageType<TierList> {
         /* bool is_patreon_linked = 4; */
         if (message.isPatreonLinked !== false)
             writer.tag(4, WireType.Varint).bool(message.isPatreonLinked);
-        /* bool is_admin = 5; */
+        /* bool is_substar_linked = 5; */
+        if (message.isSubstarLinked !== false)
+            writer.tag(5, WireType.Varint).bool(message.isSubstarLinked);
+        /* bool is_admin = 6; */
         if (message.isAdmin !== false)
-            writer.tag(5, WireType.Varint).bool(message.isAdmin);
+            writer.tag(6, WireType.Varint).bool(message.isAdmin);
+        /* bool is_polling_enabled = 7; */
+        if (message.isPollingEnabled !== false)
+            writer.tag(7, WireType.Varint).bool(message.isPollingEnabled);
+        /* bool is_creator_patreon_linked = 8; */
+        if (message.isCreatorPatreonLinked !== false)
+            writer.tag(8, WireType.Varint).bool(message.isCreatorPatreonLinked);
+        /* bool is_creator_substar_linked = 9; */
+        if (message.isCreatorSubstarLinked !== false)
+            writer.tag(9, WireType.Varint).bool(message.isCreatorSubstarLinked);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -648,13 +764,15 @@ class SettingsRequest$Type extends MessageType<SettingsRequest> {
     constructor() {
         super("SettingsRequest", [
             { no: 1, name: "patreon_webhook_secret", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "substar_webhook_secret", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 2, name: "substar_webhook_secret", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "enable_polling", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
         ]);
     }
     create(value?: PartialMessage<SettingsRequest>): SettingsRequest {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.patreonWebhookSecret = "";
         message.substarWebhookSecret = "";
+        message.enablePolling = false;
         if (value !== undefined)
             reflectionMergePartial<SettingsRequest>(this, message, value);
         return message;
@@ -669,6 +787,9 @@ class SettingsRequest$Type extends MessageType<SettingsRequest> {
                     break;
                 case /* string substar_webhook_secret */ 2:
                     message.substarWebhookSecret = reader.string();
+                    break;
+                case /* bool enable_polling */ 3:
+                    message.enablePolling = reader.bool();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -688,6 +809,9 @@ class SettingsRequest$Type extends MessageType<SettingsRequest> {
         /* string substar_webhook_secret = 2; */
         if (message.substarWebhookSecret !== "")
             writer.tag(2, WireType.LengthDelimited).string(message.substarWebhookSecret);
+        /* bool enable_polling = 3; */
+        if (message.enablePolling !== false)
+            writer.tag(3, WireType.Varint).bool(message.enablePolling);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

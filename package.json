@@ -14,11 +14,13 @@
     "@submanager/gen-shared": "file:./networking/gen/shared",
     "axios": "^1.13.5",
     "express": "^5.2.1",
+    "node-cron": "^4.2.1",
     "patreon": "^0.4.1"
   },
   "devDependencies": {
     "@rootsdk/dev-tools": "*",
     "@types/node": "^22.10.2",
+    "@types/node-cron": "^3.0.11",
     "typescript": "^5.8.2"
   },
   "scripts": {

@@ -14,7 +14,7 @@ app.post("/webhooks/patreon/:communityId", async (req, res) => {
   try {
     // Pass the webhook data to your existing handler logic
     console.log(`Received Patreon webhook for community: ${communityId}`);
-    // await handlePatreonWebhook(req.body, communityId); 
+    await handlePatreonWebhook(req.body, communityId);
     res.status(200).send("OK");
   } catch (error) {
     console.error("Webhook error:", error);
@@ -74,6 +74,9 @@ async function onStarting(state: RootAppStartState) {
       table.text("substar_refresh_token").nullable();
       table.timestamp("substar_expires_at").nullable();
       table.string("substar_webhook_secret").nullable();
+
+      // Polling Toggle
+      table.boolean("enable_polling").defaultTo(false);
     });
   }
 
@@ -86,6 +89,8 @@ async function onStarting(state: RootAppStartState) {
   app.listen(3001, () => {
     console.log("Express webhook server running on port 3001");
   });
+
+  subService.startBackgroundPolling();
 }
 
 (async () => {

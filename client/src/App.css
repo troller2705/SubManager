@@ -455,3 +455,50 @@
     color: var(--rootsdk-text-secondary);
     line-height: 1.5;
   }
+
+  /* ----------------------------------------------------------
+   FONT SECTION
+   Each custom font used
+   ---------------------------------------------------------- */
+
+  @font-face {
+    font-family: 'password';
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://jsbin-user-assets.s3.amazonaws.com/rafaelcastrocouto/password.ttf);
+  }
+
+  input.key {
+    font-family: 'password';
+  }
+
+  /* ----------------------------------------------------------
+   SWITCH COMPONENT
+   Custom SWITCH matching Root design patterns
+   ---------------------------------------------------------- */
+
+  .switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background-color: var(--rootsdk-highlight-normal);
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+  .switch[data-checked="true"] {
+    background-color: var(--rootsdk-brand-primary);
+  }
+  .switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background-color: var(--rootsdk-text-primary);
+    border-radius: 50%;
+    transition: transform 150ms;
+  }
+  .switch[data-checked="true"] .switch-thumb {
+    transform: translateX(20px);
+  }

@@ -9,27 +9,50 @@ const App: React.FC = () => {
     const [activePage, setActivePage] = useState<PageView>('user');
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
-    // Fetch permission status when the app loads
     useEffect(() => {
+        // 1. Process OAuth Callbacks Globally
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state'); // e.g. "creator-patreon" or "user-patreon"
+
+        if (code && state) {
+            // Split the state into its two parts
+            const [userType, provider] = state.split('-');
+
+            if (userType === 'creator') {
+                // Pass BOTH the code and the provider down to the backend!
+                subscriptionServiceClient.linkCreatorAccount({ code, provider }).then((res) => {
+                    if (res.success) {
+                        alert(`Creator ${provider} account linked!`);
+                        setActivePage('admin');
+                    }
+                }).finally(() => {
+                    window.history.replaceState({}, document.title, "/");
+                });
+            } else {
+                subscriptionServiceClient.linkUserAccount({ code, provider }).then((res) => {
+                    if (res.success) alert(`Member ${provider} account linked!`);
+                }).finally(() => {
+                    window.history.replaceState({}, document.title, "/");
+                });
+            }
+        }
+
+        // 2. Fetch Initial Permissions
         subscriptionServiceClient.getTiers().then(res => {
             setIsAdmin(res.isAdmin);
         }).catch(err => console.error("Failed to load initial data", err));
     }, []);
 
     const renderContent = () => {
-        // Double-check permission before rendering the admin page
         if (activePage === 'admin' && isAdmin) return <Admins />;
         return <Users />;
     };
 
     return (
         <div className="main-layout" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-            <Nav
-                activePage={activePage}
-                onNavigate={setActivePage}
-                isAdmin={isAdmin} // Pass the status to the Nav
-            />
-            <main className="content-area" style={{ flex: 1, overflowY: 'auto' }}>
+            <Nav activePage={activePage} onNavigate={setActivePage} isAdmin={isAdmin} />
+            <main className="content-area" style={{ flex: 1 }}>
                 {renderContent()}
             </main>
         </div>

@@ -3,12 +3,13 @@
 // tslint: disable
 
 import {
-  LinkPatreonRequest,
-	LinkPatreonResponse,
+  LinkAccountRequest,
+	LinkAccountResponse,
 	MappingRequest,
 	SettingsRequest,
 	SyncResponse,
 	TierList,
+	UnlinkRequest,
 	Void
 } from "@submanager/gen-shared"
 import {
@@ -36,11 +37,22 @@ export class SubscriptionServiceClient  {
 	triggerManualSync():Promise<SyncResponse> {
 		return (<any>rootClient).sendWithResponse('/.SubscriptionService/TriggerManualSync',{}, this.triggerManualSync);
 	}
-	linkPatreonAccount(request: LinkPatreonRequest):Promise<LinkPatreonResponse> {
-		return (<any>rootClient).sendWithResponse('/.SubscriptionService/LinkPatreonAccount',request, this.linkPatreonAccount);
+	linkUserAccount(request: LinkAccountRequest):Promise<LinkAccountResponse> {
+		return (<any>rootClient).sendWithResponse('/.SubscriptionService/LinkUserAccount',request, this.linkUserAccount);
+	}
+	linkCreatorAccount(request: LinkAccountRequest):Promise<LinkAccountResponse> {
+		return (<any>rootClient).sendWithResponse('/.SubscriptionService/LinkCreatorAccount',request, this.linkCreatorAccount);
 	}
 	saveSettings(request: SettingsRequest):Promise<void> {
 			(<any>rootClient).sendWithResponse('/.SubscriptionService/SaveSettings',request, this.saveSettings);
+			return Promise.resolve();
+	}
+	unlinkUserAccount(request: UnlinkRequest):Promise<void> {
+			(<any>rootClient).sendWithResponse('/.SubscriptionService/UnlinkUserAccount',request, this.unlinkUserAccount);
+			return Promise.resolve();
+	}
+	unlinkCreatorAccount(request: UnlinkRequest):Promise<void> {
+			(<any>rootClient).sendWithResponse('/.SubscriptionService/UnlinkCreatorAccount',request, this.unlinkCreatorAccount);
 			return Promise.resolve();
 	}private __register(): UntypedClientMethodDefinition[] {
 		return [	{
@@ -66,16 +78,37 @@ export class SubscriptionServiceClient  {
     },
 		{
       serviceName: 'SubscriptionServiceClient',
-			methodName: 'LinkPatreonAccount',
-			path: '/.SubscriptionService/LinkPatreonAccount',
-			requestSerialize: value => LinkPatreonRequest.toBinary(value),
-			responseDeserialize: bytes => LinkPatreonResponse.fromBinary(bytes)
+			methodName: 'LinkUserAccount',
+			path: '/.SubscriptionService/LinkUserAccount',
+			requestSerialize: value => LinkAccountRequest.toBinary(value),
+			responseDeserialize: bytes => LinkAccountResponse.fromBinary(bytes)
+    },
+		{
+      serviceName: 'SubscriptionServiceClient',
+			methodName: 'LinkCreatorAccount',
+			path: '/.SubscriptionService/LinkCreatorAccount',
+			requestSerialize: value => LinkAccountRequest.toBinary(value),
+			responseDeserialize: bytes => LinkAccountResponse.fromBinary(bytes)
     },
 		{
       serviceName: 'SubscriptionServiceClient',
 			methodName: 'SaveSettings',
 			path: '/.SubscriptionService/SaveSettings',
 			requestSerialize: value => SettingsRequest.toBinary(value),
+			responseDeserialize: () => {}
+    },
+		{
+      serviceName: 'SubscriptionServiceClient',
+			methodName: 'UnlinkUserAccount',
+			path: '/.SubscriptionService/UnlinkUserAccount',
+			requestSerialize: value => UnlinkRequest.toBinary(value),
+			responseDeserialize: () => {}
+    },
+		{
+      serviceName: 'SubscriptionServiceClient',
+			methodName: 'UnlinkCreatorAccount',
+			path: '/.SubscriptionService/UnlinkCreatorAccount',
+			requestSerialize: value => UnlinkRequest.toBinary(value),
 			responseDeserialize: () => {}
     },
 	]}
