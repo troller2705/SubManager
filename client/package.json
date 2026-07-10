@@ -17,6 +17,6 @@
   },
   "scripts": {
     "build": "tsc && vite build",
-    "client": "vite"
+    "client": "vite --host"
   }
 }

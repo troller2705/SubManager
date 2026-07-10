@@ -4,6 +4,11 @@ import { SubscriptionServiceBase } from "@submanager/gen-server";
 import axios from 'axios';
 import cron from 'node-cron';
 import { isAdminAuthorized } from "./securityService";
+import crypto from "crypto";
+
+const OAUTH_API_URL = "http://localhost:4000/api/oauth/exchange"; // Update for production
+const SHARED_SECRET = process.env.API_SHARED_SECRET!;
+const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex');
 
 interface RoleMappingRow {
   tier_id: string;
